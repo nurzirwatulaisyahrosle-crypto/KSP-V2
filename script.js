@@ -611,11 +611,10 @@ function handleInteraction() {
   }
 
   else {
-    interaction.textContent =
-      `✨ ${target.label} — masuk misi`;
-
+    // Only one prompt is needed for an available mission.
+    interaction.classList.add("hidden");
     interactBtn.textContent =
-      "✨ MASUK MISI";
+      "✨ MULAKAN MISI";
   }
 }
 
