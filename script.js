@@ -3111,6 +3111,45 @@ function updatePlayer(time) {
 
 
 // =====================================================
+// MOVING COMPASS ARROW — always points to the next mission
+// =====================================================
+const missionGuideArrow = document.createElement("div");
+missionGuideArrow.id = "missionGuideArrow";
+missionGuideArrow.setAttribute("aria-hidden", "true");
+missionGuideArrow.innerHTML = '<span class="mission-guide-shaft"></span><span class="mission-guide-head"></span>';
+world.appendChild(missionGuideArrow);
+
+function updateMissionGuide(time) {
+  const target = checkpoints.find(cp => cp.id === game.currentCheckpoint) ||
+    (game.completedCheckpoints.length === 5 ? finish : null);
+
+  if (!target || !modal.classList.contains("hidden") ||
+      !resultModal.classList.contains("hidden")) {
+    missionGuideArrow.style.display = "none";
+    return;
+  }
+
+  const dx = target.x - game.player.x;
+  const dy = target.y - game.player.y;
+  const distance = Math.hypot(dx, dy);
+
+  // Do not obscure the checkpoint once the character reaches it.
+  if (distance < 100) {
+    missionGuideArrow.style.display = "none";
+    return;
+  }
+
+  const ux = dx / distance;
+  const uy = dy / distance;
+  const ahead = 91 + Math.sin(time / 270) * 6;
+  missionGuideArrow.style.display = "flex";
+  missionGuideArrow.style.left = (game.player.x + ux * ahead) + "px";
+  missionGuideArrow.style.top = (game.player.y - 39 + uy * ahead) + "px";
+  missionGuideArrow.style.transform =
+    "translate(-50%, -50%) rotate(" + Math.atan2(dy, dx) + "rad)";
+}
+
+// =====================================================
 // CAMERA
 // =====================================================
 
@@ -3293,6 +3332,8 @@ window.addEventListener(
 function loop(time) {
 
   updatePlayer(time);
+
+  updateMissionGuide(time);
 
   updateCamera();
 
