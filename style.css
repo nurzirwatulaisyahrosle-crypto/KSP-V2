@@ -2280,3 +2280,35 @@ option {
     font-family: "Comic Neue", "Comic Sans MS", sans-serif !important;
 }
 
+
+/* Moving direction guide for the current mission — KSP-V2 only */
+#missionGuideArrow {
+  position: absolute;
+  width: 100px;
+  height: 38px;
+  display: none;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 35;
+  pointer-events: none;
+  transform-origin: center center;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,.65));
+}
+#missionGuideArrow .mission-guide-shaft {
+  width: 65px;
+  height: 15px;
+  margin-left: 2px;
+  background: #ffc837;
+  border: 3px solid #fff8dd;
+  border-right: 0;
+  border-radius: 9px 0 0 9px;
+  box-sizing: border-box;
+}
+#missionGuideArrow .mission-guide-head {
+  width: 0;
+  height: 0;
+  border-top: 19px solid transparent;
+  border-bottom: 19px solid transparent;
+  border-left: 34px solid #ffc837;
+  filter: drop-shadow(2px 0 0 #fff8dd);
+}
