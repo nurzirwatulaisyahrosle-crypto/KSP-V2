@@ -2478,3 +2478,18 @@ option {
   from { box-shadow: 0 5px 0 #ad7414, 0 0 9px #ffd55e, 0 0 17px #ffd04c66; }
   to { box-shadow: 0 5px 0 #ad7414, 0 0 20px #ffe58e, 0 0 38px #ffd04cbb; }
 }
+
+/* Fix: anchor the single mission button to the visible game screen on every device.
+   Earlier desktop and portrait rules were hiding/repositioning it. */
+#gameScreen > #interactBtn.interact-btn:not(.hidden) {
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 250 !important;
+  animation: none !important;
+  box-shadow: 0 5px 0 #ad7414, 0 0 15px #ffde6d, 0 0 26px #ffd04c99 !important;
+}
