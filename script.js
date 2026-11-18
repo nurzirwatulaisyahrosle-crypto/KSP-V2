@@ -245,7 +245,7 @@ const micTestStatus =
 
 if (readyBtn) {
   readyBtn.disabled = true;
-  readyBtn.classList.add("hidden");
+  readyBtn.classList.remove("hidden");
 }
 
 if (testMicBtn) {
@@ -323,6 +323,7 @@ function testMicrophone() {
       micTestPassed = true;
       if (readyBtn) {
         readyBtn.disabled = false;
+        readyBtn.classList.remove("hidden");
         const overlay = document.querySelector("#startJourneyOverlay");
         if (overlay) overlay.classList.remove("hidden");
       }
