@@ -903,6 +903,29 @@ function showCheckpointInstruction(id) {
     );
 
   instructionDoneBtn.onclick = () => {
+    showListenTwiceReminder(id);
+  };
+}
+
+// Reminder appears AFTER the main instruction, inside every mission.
+function showListenTwiceReminder(id) {
+  modalTitle.textContent = `Misi ${id}`;
+  activityArea.innerHTML = `
+    <div class="instruction-screen">
+      <div class="instruction-icon">🔊</div>
+      <h3>DENGAR DUA KALI</h3>
+      <p>Tekan butang <strong>DENGAR AUDIO</strong> sebanyak
+      <strong>dua kali</strong> supaya anda dapat memahami soalan dengan jelas.</p>
+      <p>Jika suara anda tidak dikesan, tekan <strong>RAKAM</strong>
+      sekali lagi dan sebut jawapan dengan jelas.</p>
+      <div class="activity-actions">
+        <button id="listenTwiceDoneBtn" class="primary-btn">
+          ✅ SAYA FAHAM! MULA MISI
+        </button>
+      </div>
+    </div>
+  `;
+  document.querySelector("#listenTwiceDoneBtn").onclick = () => {
     renderActivity(id);
   };
 }
