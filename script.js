@@ -793,17 +793,17 @@ const checkpointInstructions = {
     icon: "👂",
 
     title:
-      "Dengar dan Pilih Jawapan",
+      "Dengar dan pilih jawapan.",
 
     text:
-      'Dengar audio dengan <strong>teliti</strong>, kemudian <strong>pilih jawapan yang betul</strong>.'
+      'Dengar audio dengan <strong>teliti</strong>, kemudian <strong>pilih jawapan yang tepat</strong>.'
   },
 
   2: {
     icon: "👂",
 
     title:
-      "Dengar dan Lakukan",
+      "Dengar dan lakukan.",
 
     text:
       'Dengar arahan dengan <strong>teliti</strong>, kemudian <strong>seret objek yang betul ke tempat yang sesuai</strong>.'
@@ -813,7 +813,7 @@ const checkpointInstructions = {
     icon: "🎤",
 
     title:
-      "Dengar dan Berbual",
+      "Dengar dan berbual.",
 
     text:
       'Dengar dengan <strong>teliti</strong>, kemudian <strong>berikan jawapan secara lisan</strong>.'
@@ -823,7 +823,7 @@ const checkpointInstructions = {
     icon: "🗣️",
 
     title:
-      "Dengar dan Berikan Respons",
+      "Dengar dan berikan respons.",
 
     text:
       'Dengar dengan <strong>teliti</strong>, kemudian <strong>berikan respons yang sesuai</strong>.'
@@ -833,7 +833,7 @@ const checkpointInstructions = {
     icon: "🎙️",
 
     title:
-      "Dengar dan Sebut Semula",
+      "Dengar dan sebut semula.",
 
     text:
       'Dengar ayat dengan <strong>teliti</strong>, kemudian <strong>sebut semula ayat yang didengar</strong>.'
@@ -886,7 +886,7 @@ function showCheckpointInstruction(id) {
           id="instructionDoneBtn"
           class="primary-btn"
         >
-          ✅ SAYA SUDAH FAHAM
+          ✅ SAYA FAHAM
         </button>
 
       </div>
@@ -917,7 +917,7 @@ function showListenTwiceReminder(id) {
       <strong>DENGAR AUDIO</strong> atau <strong>RAKAM</strong> sekali lagi.</p>
       <div class="activity-actions">
         <button id="listenTwiceDoneBtn" class="primary-btn">
-          ✅ SAYA FAHAM! MULA MISI
+          ✅ MULAKAN MISI ✅
         </button>
       </div>
     </div>
@@ -952,11 +952,7 @@ function shell(title, total, body) {
 
   activityArea.innerHTML = `
 
-    <div class="question-page">
-
-      <div class="activity-mission">
-        🚩 MISI ${missionNumber}
-      </div>
+    <div class="question-page mission-${missionNumber} question-${questionNumber}">
 
       <div class="activity-question">
         SOALAN ${questionNumber}
@@ -1006,10 +1002,10 @@ function renderActivity(id) {
     total,
 
     id === 3
-      ? "Dengar dan Berbual"
+      ? "Dengar dan berbual."
       : id === 4
-        ? "Dengar dan Berikan Respons"
-        : "Dengar dan Sebut Semula",
+        ? "Dengar dan berikan respons."
+        : "Dengar dan sebut semula.",
 
     id === 4,
     id === 5
@@ -1192,7 +1188,7 @@ function bad() {
 function cp1(d, total) {
 
   shell(
-    "Dengar dan Pilih Jawapan",
+    "Dengar dan pilih jawapan.",
     total,
     `
       <div class="activity-actions">
@@ -1264,7 +1260,7 @@ listenBtn.onclick = () => {
 function cp2(d, total) {
 
   shell(
-    "Dengar dan Lakukan",
+    "Dengar dan lakukan.",
     total,
     `
       <div class="activity-actions">
