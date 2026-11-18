@@ -2355,3 +2355,55 @@ option {
   from { opacity: 0; transform: scale(.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* KSP-V2 NIGHT ADVENTURE HOME ONLY — all other screens untouched */
+#startScreen.start-screen {
+  min-height: 100dvh;
+  padding: clamp(12px, 3vh, 28px);
+  background: radial-gradient(ellipse at 50% 27%,#293e78 0%,#182b5b 39%,#0b1638 73%,#070f27 100%);
+  isolation: isolate;
+}
+#startScreen.start-screen::before {
+  left:-10%;right:-10%;bottom:-90px;height:210px;
+  background:linear-gradient(180deg,#18345b,#081b36);
+  border-radius:55% 55% 0 0;opacity:1;z-index:0;
+}
+#startScreen .night-stars {
+  position:absolute;inset:0;pointer-events:none;opacity:.9;
+  background-image:
+    radial-gradient(2px 2px at 8% 12%,#fff 99%,transparent),
+    radial-gradient(3px 3px at 19% 32%,#ffeeb1 99%,transparent),
+    radial-gradient(2px 2px at 33% 8%,#fff 99%,transparent),
+    radial-gradient(2px 2px at 58% 19%,#fff 99%,transparent),
+    radial-gradient(3px 3px at 77% 11%,#ffde87 99%,transparent),
+    radial-gradient(2px 2px at 92% 30%,#fff 99%,transparent),
+    radial-gradient(2px 2px at 11% 71%,#fff 99%,transparent),
+    radial-gradient(3px 3px at 88% 76%,#fff 99%,transparent);
+  background-size: 100% 100%;
+  animation: nightTwinkle 4s ease-in-out infinite alternate;
+}
+@keyframes nightTwinkle {from{opacity:.45}to{opacity:1}}
+#startScreen .night-moon {
+  position:absolute;right:10%;top:9%;width:75px;height:75px;border-radius:50%;
+  background:#ffedb2;box-shadow:0 0 36px 13px #fff0ac3d;
+}
+#startScreen .night-castle {position:absolute;left:5%;bottom:7%;font-size:clamp(62px,10vw,125px);opacity:.35;filter:brightness(.5)}
+#startScreen .night-tree {position:absolute;bottom:3%;font-size:clamp(50px,9vw,110px);opacity:.55;filter:brightness(.5)}
+#startScreen .night-tree-left{left:0}
+#startScreen .night-tree-right{right:0}
+#startScreen .start-card {
+  width:min(520px,94vw);max-height:calc(100dvh - 22px);overflow-y:auto;
+  padding:clamp(16px,3vh,28px) clamp(17px,4vw,30px);
+  border:2px solid #8ca6e2;border-radius:26px;
+  background:linear-gradient(160deg,rgba(29,46,91,.93),rgba(14,28,63,.95));
+  color:#fff;box-shadow:0 15px 40px #0008,0 0 35px #8aa7ff20;
+}
+#startScreen .start-logo {display:block;width:min(100%,410px);max-height:42dvh;object-fit:contain;margin:0 auto 12px;filter:drop-shadow(0 9px 10px #0007)}
+#startScreen .name-box {
+  padding:clamp(12px,2vh,18px);border:2px solid #cfae67;border-radius:20px;
+  background:linear-gradient(180deg,#fff6dc,#f6e6bf);
+}
+#startScreen .start-card label{color:#24365c;text-align:center;font-size:clamp(17px,3.2vw,21px)}
+#startScreen .start-card input{border:2px solid #ad92d4;background:#fffdf7;color:#233451;text-align:center}
+#startScreen #startBtn{width:100%;font-size:clamp(17px,3vw,22px)}
+@media(max-height:650px){#startScreen .start-logo{max-height:32dvh}#startScreen .start-card{padding:12px 18px}}
