@@ -2441,3 +2441,6 @@ option {
   #startScreen .start-card { padding: 10px 14px; }
   #startScreen .name-box { padding: 10px; }
 }
+
+/* Penamat: use the castle already drawn on the map; hide only its duplicate sign graphic. */
+#cpLayer .checkpoint[data-cp="finish"] img { visibility: hidden !important; }
