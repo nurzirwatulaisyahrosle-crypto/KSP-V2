@@ -83,7 +83,7 @@ const petaraMusic = (() => {
   let timer = null;
   let step = 0;
   let nextTime = 0;
-  let enabled = true;
+  let enabled = false;
   let suspendedForMission = false;
   const beat = 60 / 116;
   const melody = [
@@ -174,9 +174,9 @@ const petaraMusic = (() => {
   }
   const button = document.createElement("button");
   button.type = "button";
-  button.textContent = "🎵 Muzik ON";
+  button.textContent = "🔇 Muzik OFF";
   button.setAttribute("aria-label","Hidupkan atau matikan muzik latar");
-  button.setAttribute("aria-pressed","true");
+  button.setAttribute("aria-pressed","false");
   Object.assign(button.style,{
     position:"fixed",top:"12px",right:"12px",zIndex:"10000",
     padding:"8px 12px",borderRadius:"18px",border:"2px solid #fff",
@@ -186,12 +186,7 @@ const petaraMusic = (() => {
   button.addEventListener("click",toggle);
   document.body.appendChild(button);
   // Browsers, including iPadOS, require a user gesture to start audio.
-  document.addEventListener("pointerdown", () => {
-    if (!ctx && enabled && !suspendedForMission) play();
-  }, { passive:true });
-  document.addEventListener("keydown", () => {
-    if (!ctx && enabled && !suspendedForMission) play();
-  });
+  // Muzik latar hanya bermula apabila pemain sendiri menekan butang Muzik ON.
   return { play, pause, mission };
 })();
 
@@ -257,7 +252,7 @@ if (testMicBtn) {
 }
 
 if (readyBtn) {
-  readyBtn.addEventListener("click", enterWorld);
+  readyBtn.addEventListener("click", showVoiceReminder);
 }
 
 function testMicrophone() {
@@ -393,6 +388,20 @@ function testMicrophone() {
   }
 }
 
+function showVoiceReminder() {
+  if (micTestRecognition) {
+    try { micTestRecognition.stop(); } catch (e) {}
+    micTestRecognition = null;
+  }
+  if (prepScreen) prepScreen.classList.add("hidden");
+  const reminder = document.querySelector("#voiceReminderScreen");
+  if (reminder) reminder.classList.remove("hidden");
+  else enterWorld();
+}
+
+const reminderContinueBtn = document.querySelector("#reminderContinueBtn");
+if (reminderContinueBtn) reminderContinueBtn.addEventListener("click", enterWorld);
+
 function enterWorld() {
   if (micTestRecognition) {
     try {
@@ -405,6 +414,8 @@ function enterWorld() {
   if (prepScreen) {
     prepScreen.classList.add("hidden");
   }
+  const reminder = document.querySelector("#voiceReminderScreen");
+  if (reminder) reminder.classList.add("hidden");
 
   startScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
@@ -968,6 +979,7 @@ function renderActivity(id) {
     return cp2(d, total);
   }
 
+  stopRecognition(true);
   renderVoice(
     d,
     total,
@@ -1526,7 +1538,6 @@ function renderVoice(
         id="transcript"
         class="transcript"
       >
-        Respons suara akan dipaparkan di sini.
       </div>
     `
   );
@@ -1542,7 +1553,9 @@ function renderVoice(
     );
 
   listenBtn.onclick = () => {
-  if (isCP5 && activityIndex === 0 && isRecording) {
+  if (recognition) {
+    stopRecognition(true);
+    setStatus("⏳ Mikrofon dihentikan. Tekan DENGAR AUDIO sekali lagi jika perlu.");
     return;
   }
   speak(d.audio);
@@ -1779,9 +1792,7 @@ function startRecognition(
   r.maxAlternatives = 5;
 
 
-  setTranscript(
-    "Mula bertutur..."
-  );
+  setTranscript("");
 
   setStatus(
     "🎙️ Membuka mikrofon..."
@@ -2451,6 +2462,7 @@ function evaluateVoiceResponse(
 function advance() {
 
   stopSpeech();
+  stopSuccessCheer();
 
   // Jawapan lisan dinilai selepas onend melepaskan recognition.
   // Jangan hentikan atau reset sesi yang sudah tamat sekali lagi.
@@ -2500,7 +2512,7 @@ function advance() {
 
       }
     },
-    5000
+    6000
   );
 }
 
@@ -2540,12 +2552,15 @@ function playSuccessCheer() {
 }
 
 function celebrateAnswer() {
-  playSuccessCheer();
+  stopSuccessCheer();
+  stopSpeech();
   const overlay = document.createElement("div");
   overlay.setAttribute("aria-hidden", "true");
   Object.assign(overlay.style, {
-    position: "fixed", inset: "0", zIndex: "9999",
-    overflow: "hidden", pointerEvents: "none"
+    position: "fixed", inset: "0", zIndex: "99999",
+    overflow: "hidden", pointerEvents: "auto",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    background: "linear-gradient(145deg, #163b76, #3967a5)"
   });
   const style = document.createElement("style");
   style.textContent = `@keyframes petaraStarRain {
@@ -2584,18 +2599,18 @@ function celebrateAnswer() {
   const message = document.createElement("div");
   message.innerHTML = '⭐ SYABAS! ⭐<div style="font-size:clamp(15px,3vw,20px);margin-top:8px">Jawapan anda tepat!</div>';
   Object.assign(message.style, {
-    position: "absolute", top: "50%", left: "50%",
-    transform: "translate(-50%,-50%)", textAlign: "center",
+    position: "relative", textAlign: "center",
     color: "white", fontFamily: "system-ui,sans-serif",
-    fontWeight: "900", fontSize: "clamp(27px,6vw,46px)",
+    fontWeight: "900", fontSize: "clamp(42px,10vw,100px)",
     textShadow: "0 3px 7px #000,0 0 12px #ffcf45",
     whiteSpace: "nowrap", animation: "petaraStarPop .55s ease-out",
-    background: "#19385a99", padding: "14px 22px", borderRadius: "18px"
+    background: "#19385acc", padding: "clamp(24px,5vw,70px)", borderRadius: "28px",
+    maxWidth: "94vw", whiteSpace: "normal"
   });
   overlay.appendChild(message);
   document.body.appendChild(overlay);
-  window.setTimeout(() => { message.style.transition = "opacity .2s"; message.style.opacity = "0"; }, 4700);
-  window.setTimeout(() => overlay.remove(), 5000);
+  window.setTimeout(() => { message.style.transition = "opacity .2s"; message.style.opacity = "0"; }, 5700);
+  window.setTimeout(() => overlay.remove(), 6000);
 }
 
 // =====================================================
