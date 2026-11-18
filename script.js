@@ -2946,6 +2946,25 @@ document
   });
 
 
+// iOS Safari: consume touch gestures on the movement pad before the
+// browser can turn a long press into text selection or a callout.
+document.querySelectorAll("#dpad button").forEach(button => {
+  button.addEventListener("touchstart", event => {
+    if (event.cancelable) event.preventDefault();
+    const key = button.dataset.key?.toLowerCase();
+    if (key) keys.add(key);
+    button.classList.add("pressed");
+  }, { passive: false });
+  const stopTouch = event => {
+    if (event.cancelable) event.preventDefault();
+    const key = button.dataset.key?.toLowerCase();
+    if (key) keys.delete(key);
+    button.classList.remove("pressed");
+  };
+  button.addEventListener("touchend", stopTouch, { passive: false });
+  button.addEventListener("touchcancel", stopTouch, { passive: false });
+});
+
 // =====================================================
 // PLAYER MOVEMENT
 // =====================================================
