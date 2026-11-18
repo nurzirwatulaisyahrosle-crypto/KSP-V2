@@ -297,7 +297,7 @@ function testMicrophone() {
 
   if (micTestStatus) {
     micTestStatus.textContent =
-      '🎙️ Sedang mendengar... Sebut apa-apa perkataan.';
+      '🎙️ Sedang mendengar... Sebut “Hai, PeTara!”.';
 
     micTestStatus.className =
       "mic-test-status listening";
