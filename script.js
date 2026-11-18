@@ -244,7 +244,8 @@ const micTestStatus =
   document.querySelector("#micTestStatus");
 
 if (readyBtn) {
-  readyBtn.disabled = false;
+  readyBtn.disabled = true;
+  readyBtn.classList.add("hidden");
 }
 
 if (testMicBtn) {
@@ -279,6 +280,7 @@ function testMicrophone() {
   }
 
   micTestPassed = false;
+  if (readyBtn) { readyBtn.disabled = true; readyBtn.classList.add("hidden"); }
 
   const r = new SR();
 
@@ -291,7 +293,7 @@ function testMicrophone() {
 
   if (micTestStatus) {
     micTestStatus.textContent =
-      '🎙️ Sedang mendengar... Sebut "Hai, PeTaRa!"';
+      '🎙️ Sedang mendengar... Sebut apa-apa perkataan.';
 
     micTestStatus.className =
       "mic-test-status listening";
@@ -313,8 +315,9 @@ function testMicrophone() {
 
     const text = norm(heard);
 
-   if (text.split(" ").includes("hai")) {
+   if (text.trim().length > 0) {
       micTestPassed = true;
+      if (readyBtn) { readyBtn.disabled = false; readyBtn.classList.remove("hidden"); }
 
       if (micTestStatus) {
         micTestStatus.textContent =
@@ -2554,8 +2557,7 @@ function playSuccessCheer() {
     petaraSuccessAudio.play().catch(error => {
       console.log("Success audio playback unavailable", error);
     });
-    // Hadkan sorakan kepada 1.5 saat supaya tidak bertindih dengan mikrofon.
-    petaraCheerTimer = setTimeout(stopSuccessCheer, 1500);
+    // Mainkan keseluruhan audio pada penamat tanpa pemasa pemotongan.
   } catch (error) {
     console.log("Success audio unavailable", error);
   }
@@ -2762,6 +2764,7 @@ function showResults() {
   resultModal.classList.remove(
     "hidden"
   );
+  if (game.completedCheckpoints.length === 5) playSuccessCheer();
 }
 
 
