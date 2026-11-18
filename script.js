@@ -3371,3 +3371,21 @@ function loop(time) {
 
 
 
+
+/* Suppress browser selection/copy menus during gameplay.
+   Preserve standard typing and caret controls in editable fields. */
+(() => {
+  const editable = el => Boolean(el?.closest?.('input, textarea, [contenteditable="true"]'));
+  document.addEventListener('contextmenu', event => {
+    if (!editable(event.target)) event.preventDefault();
+  });
+  document.addEventListener('selectstart', event => {
+    if (!editable(event.target)) event.preventDefault();
+  });
+  document.addEventListener('dragstart', event => {
+    if (!editable(event.target) && (event.target instanceof HTMLImageElement || event.target instanceof HTMLAnchorElement)) event.preventDefault();
+  });
+  document.addEventListener('copy', event => event.preventDefault());
+  document.addEventListener('cut', event => event.preventDefault());
+  document.addEventListener('paste', event => event.preventDefault());
+})();
