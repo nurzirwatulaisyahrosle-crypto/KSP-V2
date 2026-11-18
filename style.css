@@ -2292,14 +2292,19 @@ option {
   z-index: 35;
   pointer-events: none;
   transform-origin: center center;
-  filter: drop-shadow(0 3px 3px rgba(0,0,0,.65));
+  filter: drop-shadow(0 0 7px rgba(255,42,42,.95)) drop-shadow(0 0 15px rgba(255,42,42,.65)) drop-shadow(0 3px 3px rgba(0,0,0,.7));
+  animation: missionArrowGlow 1.35s ease-in-out infinite alternate;
+}
+@keyframes missionArrowGlow {
+  from { filter: drop-shadow(0 0 4px rgba(255,65,65,.8)) drop-shadow(0 2px 3px #000b); }
+  to { filter: drop-shadow(0 0 11px rgba(255,35,35,1)) drop-shadow(0 0 20px rgba(255,35,35,.85)) drop-shadow(0 2px 3px #000b); }
 }
 #missionGuideArrow .mission-guide-shaft {
   width: 65px;
   height: 15px;
   margin-left: 2px;
-  background: #ffc837;
-  border: 3px solid #fff8dd;
+  background: linear-gradient(180deg,#ff6666,#ed1010 65%,#b90000);
+  border: 3px solid #fff;
   border-right: 0;
   border-radius: 9px 0 0 9px;
   box-sizing: border-box;
@@ -2309,8 +2314,8 @@ option {
   height: 0;
   border-top: 19px solid transparent;
   border-bottom: 19px solid transparent;
-  border-left: 34px solid #ffc837;
-  filter: drop-shadow(2px 0 0 #fff8dd);
+  border-left: 34px solid #f01919;
+  filter: drop-shadow(2px 0 0 #fff) drop-shadow(0 0 5px #ff7777);
 }
 
 /* Reminder after each mission's main instructions */
