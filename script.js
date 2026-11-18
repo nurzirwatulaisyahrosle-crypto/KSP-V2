@@ -280,7 +280,11 @@ function testMicrophone() {
   }
 
   micTestPassed = false;
-  if (readyBtn) { readyBtn.disabled = true; readyBtn.classList.add("hidden"); }
+  if (readyBtn) {
+    readyBtn.disabled = true;
+    const overlay = document.querySelector("#startJourneyOverlay");
+    if (overlay) overlay.classList.add("hidden");
+  }
 
   const r = new SR();
 
@@ -317,7 +321,11 @@ function testMicrophone() {
 
    if (text.trim().length > 0) {
       micTestPassed = true;
-      if (readyBtn) { readyBtn.disabled = false; readyBtn.classList.remove("hidden"); }
+      if (readyBtn) {
+        readyBtn.disabled = false;
+        const overlay = document.querySelector("#startJourneyOverlay");
+        if (overlay) overlay.classList.remove("hidden");
+      }
 
       if (micTestStatus) {
         micTestStatus.textContent =
