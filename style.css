@@ -2325,3 +2325,33 @@ option {
 .petara-reminder p { color:#163f65; }
 .petara-reminder .instruction-icon { font-size: 55px; }
 .result-score #resultScore { font-size:clamp(30px,5vw,55px); letter-spacing:4px; }
+
+/* KSP-V2: central clickable start overlay after successful microphone test */
+.start-journey-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(5, 12, 28, 0.68);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.start-journey-overlay.hidden { display: none !important; }
+.start-journey-button {
+  display: block;
+  position: relative;
+  width: min(88vw, 510px);
+  min-height: 100px;
+  padding: 24px 28px;
+  font-size: clamp(22px, 5vw, 36px);
+  font-weight: 900;
+  border-radius: 24px;
+  box-shadow: 0 15px 45px rgba(0,0,0,.35);
+  animation: journeyStartAppear .25s ease-out both;
+  cursor: pointer;
+}
+@keyframes journeyStartAppear {
+  from { opacity: 0; transform: scale(.95); }
+  to { opacity: 1; transform: scale(1); }
+}
