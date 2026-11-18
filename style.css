@@ -2449,3 +2449,7 @@ option {
 
 /* Penamat: use the castle already drawn on the map; hide only its duplicate sign graphic. */
 #cpLayer .checkpoint[data-cp="finish"] img { visibility: hidden !important; }
+
+/* KSP-V2: bold all three pre-game instructions and highlight key phrases */
+#prepScreen .prep-list p { font-weight: 900 !important; }
+#prepScreen .prep-list .prep-emphasis { color: #d61b28 !important; font-weight: 900 !important; }
