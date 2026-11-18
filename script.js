@@ -252,7 +252,7 @@ if (testMicBtn) {
 }
 
 if (readyBtn) {
-  readyBtn.addEventListener("click", showVoiceReminder);
+  readyBtn.addEventListener("click", enterWorld);
 }
 
 function testMicrophone() {
@@ -387,20 +387,6 @@ function testMicrophone() {
     }
   }
 }
-
-function showVoiceReminder() {
-  if (micTestRecognition) {
-    try { micTestRecognition.stop(); } catch (e) {}
-    micTestRecognition = null;
-  }
-  if (prepScreen) prepScreen.classList.add("hidden");
-  const reminder = document.querySelector("#voiceReminderScreen");
-  if (reminder) reminder.classList.remove("hidden");
-  else enterWorld();
-}
-
-const reminderContinueBtn = document.querySelector("#reminderContinueBtn");
-if (reminderContinueBtn) reminderContinueBtn.addEventListener("click", enterWorld);
 
 function enterWorld() {
   if (micTestRecognition) {
@@ -909,15 +895,15 @@ function showCheckpointInstruction(id) {
 
 // Reminder appears AFTER the main instruction, inside every mission.
 function showListenTwiceReminder(id) {
-  modalTitle.textContent = `Misi ${id}`;
+  // Only the reminder screen is shown; hide the mission title above it.
+  modalTitle.textContent = "";
   activityArea.innerHTML = `
-    <div class="instruction-screen">
-      <div class="instruction-icon">🔊</div>
-      <h3>DENGAR DUA KALI</h3>
-      <p>Tekan butang <strong>DENGAR AUDIO</strong> sebanyak
-      <strong>dua kali</strong> supaya anda dapat memahami soalan dengan jelas.</p>
-      <p>Jika suara anda tidak dikesan, tekan <strong>RAKAM</strong>
-      sekali lagi dan sebut jawapan dengan jelas.</p>
+    <div class="instruction-screen petara-reminder">
+      <div class="instruction-icon">⚠️</div>
+      <h3>PERINGATAN!</h3>
+      <p>Jika audio tidak dapat <strong>didengar</strong> atau suara tidak dapat
+      <strong>dirakam</strong> dengan jelas, tekan butang
+      <strong>DENGAR AUDIO</strong> atau <strong>RAKAM</strong> sekali lagi.</p>
       <div class="activity-actions">
         <button id="listenTwiceDoneBtn" class="primary-btn">
           ✅ SAYA FAHAM! MULA MISI
@@ -926,6 +912,7 @@ function showListenTwiceReminder(id) {
     </div>
   `;
   document.querySelector("#listenTwiceDoneBtn").onclick = () => {
+    modalTitle.textContent = `Misi ${id}`;
     renderActivity(id);
   };
 }
@@ -2498,7 +2485,7 @@ function advance() {
 
   if (!id) return;
 
-  celebrateAnswer();
+  celebrateAnswer(activityIndex + 1 < CP[id].length);
 
   /*
     CP4 memberikan 10 markah selepas
@@ -2574,7 +2561,7 @@ function playSuccessCheer() {
   }
 }
 
-function celebrateAnswer() {
+function celebrateAnswer(hasNextQuestion = true) {
   stopSuccessCheer();
   stopSpeech();
   const overlay = document.createElement("div");
@@ -2583,7 +2570,7 @@ function celebrateAnswer() {
     position: "fixed", inset: "0", zIndex: "99999",
     overflow: "hidden", pointerEvents: "auto",
     display: "flex", alignItems: "center", justifyContent: "center",
-    background: "linear-gradient(145deg, #163b76, #3967a5)"
+    background: "rgba(5, 10, 23, 0.69)"
   });
   const style = document.createElement("style");
   style.textContent = `@keyframes petaraStarRain {
@@ -2593,16 +2580,16 @@ function celebrateAnswer() {
     100% { transform:translate3d(var(--drift),110vh,0) rotate(var(--spin)) scale(.85); opacity:0 }
   }
   @keyframes petaraStarPop {
-    0% { transform:translate(-50%,-50%) scale(.3); opacity:0 }
-    35% { transform:translate(-50%,-50%) scale(1.2); opacity:1 }
-    100% { transform:translate(-50%,-50%) scale(1); opacity:1 }
+    0% { opacity:0; transform:scale(.96) }
+    35% { opacity:1; transform:scale(1) }
+    100% { opacity:1; transform:scale(1) }
   }`;
   overlay.appendChild(style);
   const reduced = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!reduced) {
     const symbols = ["⭐", "🌟", "✦", "✧", "✨"];
-    for (let i = 0; i < 115; i++) {
+    for (let i = 0; i < 185; i++) {
       const star = document.createElement("span");
       star.textContent = symbols[Math.floor(Math.random() * symbols.length)];
       Object.assign(star.style, {
@@ -2614,20 +2601,20 @@ function celebrateAnswer() {
         filter: "drop-shadow(0 0 5px #ffd24a)",
         "--drift": (Math.random() * 170 - 85) + "px",
         "--spin": (Math.random() * 900 - 450) + "deg",
-        animation: `petaraStarRain ${1.5 + Math.random() * 1.5}s linear ${Math.random() * .95}s forwards`
+        animation: `petaraStarRain ${2.5 + Math.random() * 2.4}s linear ${Math.random() * 2.1}s infinite`
       });
       overlay.appendChild(star);
     }
   }
   const message = document.createElement("div");
-  message.innerHTML = '⭐ SYABAS! ⭐<div style="font-size:clamp(15px,3vw,20px);margin-top:8px">Jawapan anda tepat!</div>';
+  message.innerHTML = '⭐ SYABAS! ⭐<div style="font-size:clamp(17px,3vw,24px);margin-top:12px">Jawapan anda tepat!</div><div style="font-size:clamp(15px,2.6vw,21px);margin-top:20px;color:#ffe7a3">' + (hasNextQuestion ? 'Bersedia menjawab soalan seterusnya.' : 'Bersedia meneruskan pengembaraan!') + '</div>';
   Object.assign(message.style, {
     position: "relative", textAlign: "center",
     color: "white", fontFamily: "system-ui,sans-serif",
     fontWeight: "900", fontSize: "clamp(42px,10vw,100px)",
     textShadow: "0 3px 7px #000,0 0 12px #ffcf45",
-    whiteSpace: "nowrap", animation: "petaraStarPop .55s ease-out",
-    background: "#19385acc", padding: "clamp(24px,5vw,70px)", borderRadius: "28px",
+    animation: "petaraStarPop .25s ease-out",
+    background: "rgba(12, 23, 45, .40)", padding: "clamp(24px,5vw,70px)", borderRadius: "28px",
     maxWidth: "94vw", whiteSpace: "normal"
   });
   overlay.appendChild(message);
@@ -2770,8 +2757,7 @@ function showResults() {
 
   document
     .querySelector("#resultScore")
-    .textContent =
-      game.score;
+    .textContent = "⭐⭐⭐⭐⭐";
 
   resultModal.classList.remove(
     "hidden"
