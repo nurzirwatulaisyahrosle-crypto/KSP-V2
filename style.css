@@ -2312,3 +2312,16 @@ option {
   border-left: 34px solid #ffc837;
   filter: drop-shadow(2px 0 0 #fff8dd);
 }
+
+/* Reminder after each mission's main instructions */
+.petara-reminder {
+  background: linear-gradient(160deg,#d9eeff,#a7d6ff);
+  border: 3px solid #5caceb;
+  border-radius: 22px;
+  padding: 24px 18px 26px;
+  box-shadow: inset 0 2px 12px #ffffff9c;
+}
+.petara-reminder h3 { color:#13538b; }
+.petara-reminder p { color:#163f65; }
+.petara-reminder .instruction-icon { font-size: 55px; }
+.result-score #resultScore { font-size:clamp(30px,5vw,55px); letter-spacing:4px; }
