@@ -2407,3 +2407,37 @@ option {
 #startScreen .start-card input{border:2px solid #ad92d4;background:#fffdf7;color:#233451;text-align:center}
 #startScreen #startBtn{width:100%;font-size:clamp(17px,3vw,22px)}
 @media(max-height:650px){#startScreen .start-logo{max-height:32dvh}#startScreen .start-card{padding:12px 18px}}
+
+/* iPhone portrait: center the landing card within the visible viewport */
+@media (max-width: 600px) and (orientation: portrait) {
+  #startScreen.start-screen {
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  #startScreen .start-card {
+    flex: 0 1 auto;
+    width: min(100%, 430px);
+    max-height: calc(100dvh - 24px);
+    margin: auto;
+    padding: clamp(12px, 2.2dvh, 22px) 15px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #startScreen .start-logo {
+    width: min(100%, 340px);
+    max-height: min(36dvh, 300px);
+    margin: 0 auto 10px;
+  }
+  #startScreen .name-box { padding: 12px; }
+  #startScreen .start-card input { padding: 11px 12px; }
+  #startScreen #startBtn { padding: 12px 16px; }
+}
+@media (max-width: 600px) and (orientation: portrait) and (max-height: 700px) {
+  #startScreen .start-logo { max-height: 29dvh; }
+  #startScreen .start-card { padding: 10px 14px; }
+  #startScreen .name-box { padding: 10px; }
+}
