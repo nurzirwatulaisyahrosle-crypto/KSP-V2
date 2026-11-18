@@ -2522,3 +2522,12 @@ button, #dpad, #dpad button {
   -webkit-touch-callout: none !important;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* iOS Safari: stop long-press text selection and callouts on the entire D-pad. */
+#dpad, #dpad *, #dpad button {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  touch-action: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
