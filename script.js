@@ -26,7 +26,7 @@ const checkpoints = [
   { id: 2, x: 810, y: 525, label: "Misi 2" },
   { id: 3, x: 1260, y: 660, label: "Misi 3" },
   { id: 4, x: 445, y: 245, label: "Misi 4" },
-  { id: 5, x: 1240, y: 240, label: "Misi 5" }
+  { id: 5, x: 1190, y: 240, label: "Misi 5" }
 ];
 
 const finish = {
