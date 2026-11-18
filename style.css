@@ -2453,3 +2453,28 @@ option {
 /* KSP-V2: bold all three pre-game instructions and highlight key phrases */
 #prepScreen .prep-list p { font-weight: 900 !important; }
 #prepScreen .prep-list .prep-emphasis { color: #d61b28 !important; font-weight: 900 !important; }
+
+/* KSP-V2: one prominent centered mission-start button on all screen sizes */
+#gameScreen .interact-btn {
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  min-width: 185px;
+  max-width: calc(100vw - 32px);
+  padding: 17px 26px;
+  border: 3px solid #fff8d5;
+  border-radius: 19px;
+  background: linear-gradient(180deg, #ffe987, #ffca38 70%, #f2a71e);
+  color: #432b08;
+  font-size: clamp(17px, 2.5vw, 23px);
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 5px 0 #ad7414, 0 0 15px #ffde6d, 0 0 28px #ffd04c99;
+  animation: missionStartGlow 1.5s ease-in-out infinite alternate;
+}
+@keyframes missionStartGlow {
+  from { box-shadow: 0 5px 0 #ad7414, 0 0 9px #ffd55e, 0 0 17px #ffd04c66; }
+  to { box-shadow: 0 5px 0 #ad7414, 0 0 20px #ffe58e, 0 0 38px #ffd04cbb; }
+}
