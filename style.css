@@ -2510,3 +2510,15 @@ option {
   .question-page.mission-1 .picture-options,
   .question-page.mission-2 .kitchen { max-width: 100%; margin-left: auto; margin-right: auto; }
 }
+
+/* Disable accidental long-press text selection throughout the game.
+   Keep name-entry fields editable for normal typing. */
+html, body, body *:not(input):not(textarea):not([contenteditable="true"]) {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+button, #dpad, #dpad button {
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
