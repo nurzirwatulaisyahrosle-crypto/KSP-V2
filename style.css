@@ -2493,3 +2493,20 @@ option {
   animation: none !important;
   box-shadow: 0 5px 0 #ad7414, 0 0 15px #ffde6d, 0 0 26px #ffd04c99 !important;
 }
+
+/* Language and visual polish: instruction highlights, gentle question colours */
+.instruction-screen p strong,
+.petara-reminder p strong { color: #d32232 !important; font-weight: 900; }
+#activityArea.outer-question-1 { background-color: #f9d9e7 !important; }
+#activityArea.outer-question-2 { background-color: #c9dff5 !important; }
+#activityArea.outer-question-3 { background-color: #f8e9b4 !important; }
+.petara-reminder { background: linear-gradient(160deg,#eaf5ff,#d9eafa) !important; border-color:#9bc6e8 !important; }
+/* Vary answer placement without changing answer order or drag behaviour */
+.question-page.mission-1.question-1 .picture-options { margin-left: 0; margin-right: auto; }
+.question-page.mission-1.question-2 .picture-options { margin-left: auto; margin-right: auto; }
+.question-page.mission-2.question-1 .kitchen { max-width: 90%; margin-left: auto; margin-right: auto; }
+.question-page.mission-2.question-2 .kitchen { max-width: 90%; margin-left: auto; margin-right: 0; }
+@media (max-width: 700px) {
+  .question-page.mission-1 .picture-options,
+  .question-page.mission-2 .kitchen { max-width: 100%; margin-left: auto; margin-right: auto; }
+}
