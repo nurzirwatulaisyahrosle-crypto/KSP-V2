@@ -1,0 +1,19 @@
+{
+  "name": "Kembara Si PeTara",
+  "short_name": "Si PeTara",
+  "description": "Permainan mendengar dan bertutur Bahasa Melayu",
+  "lang": "ms",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1d3b",
+  "theme_color": "#0d1d3b",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
