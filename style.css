@@ -2502,7 +2502,7 @@ option {
 #activityArea.outer-question-3 { background-color: #f8e9b4 !important; }
 .petara-reminder { background: linear-gradient(160deg,#eaf5ff,#d9eafa) !important; border-color:#9bc6e8 !important; }
 /* Vary answer placement without changing answer order or drag behaviour */
-.question-page.mission-1.question-1 .picture-options { margin-left: 0; margin-right: auto; }
+.question-page.mission-1.question-1 .picture-options { margin-left: auto; margin-right: auto; }
 .question-page.mission-1.question-2 .picture-options { margin-left: auto; margin-right: auto; }
 .question-page.mission-2.question-1 .kitchen { max-width: 90%; margin-left: auto; margin-right: auto; }
 .question-page.mission-2.question-2 .kitchen { max-width: 90%; margin-left: auto; margin-right: 0; }
