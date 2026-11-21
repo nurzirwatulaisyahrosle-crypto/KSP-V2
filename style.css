@@ -2601,13 +2601,15 @@ button, #dpad, #dpad button {
   font-size: 23px !important; line-height: 1 !important;
 }
 
+/* Same strong breathing motion as the active mission signs */
 @keyframes petaraMissionPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 5px 0 #8c0a23, 0 0 12px #ff3656, 0 0 25px #ff365688; }
-  50% { transform: translate(-50%, -50%) scale(1.075); box-shadow: 0 5px 0 #8c0a23, 0 0 25px #ff3656, 0 0 46px #ff3656cc; }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 7px #ff3757); }
+  50% { transform: translate(-50%, -50%) scale(1.16); filter: drop-shadow(0 0 20px #ff3757); }
 }
 #gameScreen #interactBtn.interact-btn:not(.hidden) {
-  animation: petaraMissionPulse 1.5s ease-in-out infinite !important;
+  animation: petaraMissionPulse 1.35s ease-in-out infinite !important;
   transform-origin: center center;
+  will-change: transform;
 }
 @media (prefers-reduced-motion: reduce) {
   #gameScreen #interactBtn.interact-btn:not(.hidden) { animation: none !important; transform: translate(-50%, -50%) !important; }
