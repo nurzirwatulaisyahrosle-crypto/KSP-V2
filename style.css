@@ -2600,3 +2600,15 @@ button, #dpad, #dpad button {
   align-items: center !important; justify-content: center !important;
   font-size: 23px !important; line-height: 1 !important;
 }
+
+@keyframes petaraMissionPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 5px 0 #8c0a23, 0 0 12px #ff3656, 0 0 25px #ff365688; }
+  50% { transform: translate(-50%, -50%) scale(1.075); box-shadow: 0 5px 0 #8c0a23, 0 0 25px #ff3656, 0 0 46px #ff3656cc; }
+}
+#gameScreen #interactBtn.interact-btn:not(.hidden) {
+  animation: petaraMissionPulse 1.5s ease-in-out infinite !important;
+  transform-origin: center center;
+}
+@media (prefers-reduced-motion: reduce) {
+  #gameScreen #interactBtn.interact-btn:not(.hidden) { animation: none !important; transform: translate(-50%, -50%) !important; }
+}
