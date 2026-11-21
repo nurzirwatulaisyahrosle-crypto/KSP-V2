@@ -2465,18 +2465,18 @@ option {
   padding: 17px 26px;
   border: 3px solid #fff8d5;
   border-radius: 19px;
-  background: linear-gradient(180deg, #ffe987, #ffca38 70%, #f2a71e);
-  color: #432b08;
+  background: linear-gradient(180deg, #ff697a, #eb1739 70%, #b50026);
+  color: #ffffff;
   font-size: clamp(17px, 2.5vw, 23px);
   font-weight: 900;
   text-align: center;
   white-space: nowrap;
-  box-shadow: 0 5px 0 #ad7414, 0 0 15px #ffde6d, 0 0 28px #ffd04c99;
+  box-shadow: 0 5px 0 #8c0a23, 0 0 15px #ff3656, 0 0 28px #ff365699;
   animation: missionStartGlow 1.5s ease-in-out infinite alternate;
 }
 @keyframes missionStartGlow {
-  from { box-shadow: 0 5px 0 #ad7414, 0 0 9px #ffd55e, 0 0 17px #ffd04c66; }
-  to { box-shadow: 0 5px 0 #ad7414, 0 0 20px #ffe58e, 0 0 38px #ffd04cbb; }
+  from { box-shadow: 0 5px 0 #8c0a23, 0 0 9px #ff3656, 0 0 17px #ff365666; }
+  to { box-shadow: 0 5px 0 #8c0a23, 0 0 20px #ff697a, 0 0 38px #ff3656bb; }
 }
 
 /* Fix: anchor the single mission button to the visible game screen on every device.
