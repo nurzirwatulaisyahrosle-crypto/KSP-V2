@@ -2570,3 +2570,24 @@ button, #dpad, #dpad button {
   box-shadow: 0 5px 0 #8c0a23,0 0 18px #ff3656,0 0 32px #ff365699 !important;
   animation: petaraRedGlow 1.4s ease-in-out infinite alternate !important;
 }
+
+/* Mission HOME and confirmation dialog — shared by all checkpoints/questions */
+#checkpointModal .activity-card { position: relative; }
+#checkpointModal .mission-home-btn {
+  position: absolute; top: 15px; left: 16px; z-index: 5;
+  padding: 9px 13px; border: 2px solid #b68d5b; border-radius: 12px;
+  background: linear-gradient(#fffdf5,#f3e0b8); color: #66401e;
+  font-weight: 900; font-size: 14px; cursor: pointer;
+  box-shadow: 0 4px 0 #9d794c, 0 6px 10px #0002;
+  touch-action: manipulation;
+}
+#checkpointModal .mission-home-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #9d794c; }
+#missionHomeConfirm { z-index: 99999; }
+#missionHomeConfirm .mission-home-confirm-card { max-width: 410px; width: min(92vw,410px); padding: 28px 20px; text-align: center; }
+#missionHomeConfirm .mission-home-confirm-icon { font-size: 40px; color: #8b633c; }
+#missionHomeConfirm h2 { font-size: clamp(19px,4vw,25px); margin: 10px 0; }
+#missionHomeConfirm p { font-size: 15px; margin-bottom: 22px; }
+#missionHomeConfirm .mission-home-confirm-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+#missionHomeConfirm .mission-home-confirm-actions button { border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 900; cursor: pointer; }
+#missionHomeConfirm .mission-home-cancel { background: #e5e5e5; color: #333; }
+#missionHomeConfirm .mission-home-yes { background: #287d9f; color: white; }
