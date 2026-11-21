@@ -241,6 +241,8 @@
 
   <div class="modal-card activity-card">
 
+    <button id="missionHomeBtn" class="mission-home-btn" type="button" aria-label="Kembali ke halaman utama" title="Halaman utama">⌂ HOME</button>
+
     <button
       id="closeModal"
       class="close-btn"
@@ -263,6 +265,18 @@
 
 </div>
 
+
+<div id="missionHomeConfirm" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="missionHomeTitle">
+  <div class="modal-card mission-home-confirm-card">
+    <div class="mission-home-confirm-icon">⌂</div>
+    <h2 id="missionHomeTitle">Kembali ke halaman utama?</h2>
+    <p>Permainan akan dimulakan semula jika anda keluar.</p>
+    <div class="mission-home-confirm-actions">
+      <button id="missionHomeCancel" type="button" class="mission-home-cancel">BATAL</button>
+      <button id="missionHomeYes" type="button" class="mission-home-yes">YA, KELUAR</button>
+    </div>
+  </div>
+</div>
 
 <div
   id="resultModal"
