@@ -673,6 +673,33 @@ document
     petaraMusic.mission(false);
   });
 
+// HOME within each mission: confirm before restarting the adventure.
+const missionHomeConfirm = document.querySelector("#missionHomeConfirm");
+const missionHomeBtn = document.querySelector("#missionHomeBtn");
+const missionHomeCancel = document.querySelector("#missionHomeCancel");
+const missionHomeYes = document.querySelector("#missionHomeYes");
+missionHomeBtn.addEventListener("click", () => {
+  if (game.modalCheckpoint == null) return;
+  missionHomeConfirm.classList.remove("hidden");
+  missionHomeCancel.focus();
+});
+missionHomeCancel.addEventListener("click", () => {
+  missionHomeConfirm.classList.add("hidden");
+  missionHomeBtn.focus();
+});
+missionHomeYes.addEventListener("click", () => {
+  // Cancel active question audio and microphone before resetting the game.
+  stopSpeech();
+  stopRecognition(true);
+  if (typeof micTestRecognition !== "undefined" && micTestRecognition) {
+    try { micTestRecognition.stop(); } catch (e) {}
+  }
+  game.modalCheckpoint = null;
+  missionHomeConfirm.classList.add("hidden");
+  modal.classList.add("hidden");
+  location.reload();
+});
+
 // =====================================================
 // CHECKPOINT DATA
 // =====================================================
