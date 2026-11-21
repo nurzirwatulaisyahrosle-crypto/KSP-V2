@@ -26,7 +26,7 @@ const checkpoints = [
   { id: 2, x: 810, y: 525, label: "Misi 2" },
   { id: 3, x: 1260, y: 660, label: "Misi 3" },
   { id: 4, x: 445, y: 245, label: "Misi 4" },
-  { id: 5, x: 1120, y: 240, label: "Misi 5" }
+  { id: 5, x: 1240, y: 240, label: "Misi 5" }
 ];
 
 const finish = {
@@ -83,7 +83,7 @@ const petaraMusic = (() => {
   let timer = null;
   let step = 0;
   let nextTime = 0;
-  let enabled = false;
+  let enabled = true;
   let suspendedForMission = false;
   const beat = 60 / 116;
   const melody = [
@@ -142,7 +142,7 @@ const petaraMusic = (() => {
     if (!ctx) {
       ctx = new AudioContextClass();
       master = ctx.createGain();
-      master.gain.value = 0.22;
+      master.gain.value = 0.32;
       master.connect(ctx.destination);
     }
     return true;
@@ -174,9 +174,9 @@ const petaraMusic = (() => {
   }
   const button = document.createElement("button");
   button.type = "button";
-  button.textContent = "🔇 Muzik OFF";
+  button.textContent = "🎵 Muzik ON";
   button.setAttribute("aria-label","Hidupkan atau matikan muzik latar");
-  button.setAttribute("aria-pressed","false");
+  button.setAttribute("aria-pressed","true");
   Object.assign(button.style,{
     position:"fixed",top:"12px",right:"12px",zIndex:"10000",
     padding:"8px 12px",borderRadius:"18px",border:"2px solid #fff",
@@ -185,8 +185,9 @@ const petaraMusic = (() => {
   });
   button.addEventListener("click",toggle);
   document.body.appendChild(button);
-  // Browsers, including iPadOS, require a user gesture to start audio.
-  // Muzik latar hanya bermula apabila pemain sendiri menekan butang Muzik ON.
+  // Start on first user gesture (browser autoplay restrictions apply).
+  document.addEventListener("pointerdown", () => play(), { once: true });
+  document.addEventListener("keydown", () => play(), { once: true });
   return { play, pause, mission };
 })();
 
@@ -1197,7 +1198,7 @@ function cp1(d, total) {
           class="audio-btn"
           id="listenBtn"
         >
-          🔊 DENGAR AUDIO
+          TEKAN UNTUK DENGAR
         </button>
 
       </div>
@@ -1269,7 +1270,7 @@ function cp2(d, total) {
           class="audio-btn"
           id="listenBtn"
         >
-          🔊 DENGAR AUDIO
+          TEKAN UNTUK DENGAR
         </button>
 
       </div>
@@ -1324,116 +1325,46 @@ function cp2(d, total) {
       "#dropZone"
     );
 
-  let selected = null;
-
+  // Pointer Events: actual drag-and-drop is required on touch and mouse.
+  let dragging = null;
+  let ghost = null;
   items.forEach(item => {
-
-    item.addEventListener(
-      "dragstart",
-      e => {
-
-        e.dataTransfer.setData(
-          "text/plain",
-          item.dataset.value
-        );
-
+    item.draggable = false;
+    item.addEventListener("pointerdown", event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      dragging = { item, id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+      item.setPointerCapture(event.pointerId);
+      ghost = item.cloneNode(true);
+      ghost.classList.add("drag-ghost");
+      document.body.appendChild(ghost);
+      ghost.style.left = event.clientX + "px";
+      ghost.style.top = event.clientY + "px";
+    });
+    item.addEventListener("pointermove", event => {
+      if (!dragging || dragging.id !== event.pointerId || dragging.item !== item) return;
+      if (Math.hypot(event.clientX - dragging.x, event.clientY - dragging.y) > 12) dragging.moved = true;
+      if (ghost) {
+        ghost.style.left = event.clientX + "px";
+        ghost.style.top = event.clientY + "px";
       }
-    );
-
-    item.addEventListener(
-      "click",
-      () => {
-
-        items.forEach(x =>
-          x.classList.remove(
-            "selected"
-          )
-        );
-
-        item.classList.add(
-          "selected"
-        );
-
-        selected =
-          item.dataset.value;
-      }
-    );
-
-    item.addEventListener(
-      "touchend",
-      e => {
-
-        e.preventDefault();
-
-        items.forEach(x =>
-          x.classList.remove(
-            "selected"
-          )
-        );
-
-        item.classList.add(
-          "selected"
-        );
-
-        selected =
-          item.dataset.value;
-      },
-      {
-        passive: false
-      }
-    );
-
+      const bounds = zone.getBoundingClientRect();
+      zone.classList.toggle("drag-over", event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom);
+    });
+    const finishDrag = event => {
+      if (!dragging || dragging.id !== event.pointerId || dragging.item !== item) return;
+      const bounds = zone.getBoundingClientRect();
+      const inside = event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+      const value = dragging.item.dataset.value;
+      const moved = dragging.moved;
+      dragging = null;
+      if (ghost) { ghost.remove(); ghost = null; }
+      zone.classList.remove("drag-over");
+      if (event.type === "pointerup" && moved && inside) checkDrop(value);
+    };
+    item.addEventListener("pointerup", finishDrag);
+    item.addEventListener("pointercancel", finishDrag);
   });
-
-  zone.addEventListener(
-    "dragover",
-    e => {
-      e.preventDefault();
-    }
-  );
-
-  zone.addEventListener(
-    "drop",
-    e => {
-
-      e.preventDefault();
-
-      const value =
-        e.dataTransfer.getData(
-          "text/plain"
-        );
-
-      checkDrop(value);
-
-    }
-  );
-
-  zone.addEventListener(
-    "click",
-    () => {
-
-      if (selected) {
-        checkDrop(selected);
-      }
-
-    }
-  );
-
-  zone.addEventListener(
-    "touchend",
-    e => {
-
-      if (!selected) return;
-
-      e.preventDefault();
-
-      checkDrop(selected);
-
-    },
-    {
-      passive: false
-    }
-  );
 
   function checkDrop(value) {
 
@@ -1498,10 +1429,7 @@ function renderVoice(
     setAudioPlaybackMode();
   }
 
-  const audioText =
-    isCP5
-      ? "🔊 DENGAR AYAT"
-      : "🔊 DENGAR AUDIO";
+  const audioText = "TEKAN UNTUK DENGAR";
 
   shell(
     title,
@@ -1522,7 +1450,7 @@ function renderVoice(
         isCP4
           ? `
             <div class="goods">
-              🧂 🧴 🥫
+              🧂 🥕 🥣 🍎
             </div>
           `
           : ""
@@ -1541,7 +1469,7 @@ function renderVoice(
           class="record-btn"
           id="recordBtn"
         >
-          🎙️ MULA RAKAM
+          TEKAN UNTUK RAKAM
         </button>
 
       </div>
@@ -1655,7 +1583,7 @@ function setRecordButton(
   if (recording) {
 
     button.textContent =
-      "⏹️ BERHENTI RAKAM";
+      "TEKAN UNTUK BERHENTI";
 
     button.classList.add(
       "recording"
@@ -1666,7 +1594,7 @@ function setRecordButton(
   else {
 
     button.textContent =
-      "🎙️ MULA RAKAM";
+      "TEKAN UNTUK RAKAM";
 
     button.classList.remove(
       "recording"
@@ -1804,7 +1732,7 @@ function startRecognition(
 
   // Sama seperti UJI MIKROFON
   r.lang = "ms-MY";
-  r.continuous = false;
+  r.continuous = true;
   r.interimResults = true;
   r.maxAlternatives = 5;
 
@@ -2077,6 +2005,17 @@ function startRecognition(
       });
     }
 
+    // Browser speech engines can end on silence even in continuous mode.
+    // Retry while the learner has not manually stopped; never evaluate early.
+    if (!recognitionShouldStop && game.modalCheckpoint === thisMission && activityIndex === thisQuestion) {
+      try {
+        r.start();
+        setStatus("🎙️ Mikrofon bersambung — tekan untuk berhenti apabila selesai.");
+        return;
+      } catch (err) {
+        setStatus("⚠️ Pelayar menghentikan mikrofon. Tekan UNTUK RAKAM untuk menyambung.");
+      }
+    }
     if (recognition === r) {
       recognition = null;
     }
@@ -2110,8 +2049,8 @@ function startRecognition(
         .trim();
 
 
-    // Ada suara → terus nilai
-    if (heard) {
+    // Nilai jawapan hanya selepas murid menekan butang berhenti.
+    if (heard && recognitionShouldStop) {
 
       if (!recognitionEvaluated) {
 
