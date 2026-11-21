@@ -2531,3 +2531,32 @@ button, #dpad, #dpad button {
   touch-action: none !important;
   -webkit-tap-highlight-color: transparent !important;
 }
+
+/* 2026-11: mission start, differentiated question cards and tactile buttons */
+#gameScreen > #interactBtn.interact-btn:not(.hidden) {
+  color: #fff !important;
+  background: linear-gradient(180deg,#ff5364,#db142f 65%,#a90922) !important;
+  border-color: #ffe1e5 !important;
+  text-shadow: 0 1px 2px #680016 !important;
+  box-shadow: 0 6px 0 #850c20,0 0 20px #ff274c,0 0 38px #ff496d99 !important;
+  animation: petaraRedGlow 1.4s ease-in-out infinite alternate !important;
+}
+@keyframes petaraRedGlow {
+  from { box-shadow: 0 6px 0 #850c20,0 0 12px #ff274c,0 0 24px #ff496d77; }
+  to { box-shadow: 0 6px 0 #850c20,0 0 26px #ff274c,0 0 48px #ff496dcc; }
+}
+#activityArea .question-page.question-1 { background: #fce1ee !important; }
+#activityArea .question-page.question-2 { background: #dceeff !important; }
+#activityArea .audio-btn, #activityArea .record-btn {
+  border: 2px solid #ffffffaa;
+  border-radius: 15px;
+  box-shadow: 0 5px 0 #14516b,0 9px 15px #1b405344;
+  transition: transform .12s ease, box-shadow .12s ease;
+  font-weight: 900;
+  touch-action: manipulation;
+}
+#activityArea .record-btn { box-shadow: 0 5px 0 #922b44,0 9px 15px #5b1e3544; }
+#activityArea .audio-btn:active, #activityArea .record-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #444,0 3px 6px #0003; }
+#activityArea .drag-item { touch-action: none; user-select: none; }
+.drag-ghost { position: fixed; z-index: 20000; pointer-events: none; transform: translate(-50%,-50%); opacity: .88; font-size: 52px; background: #fff6; border: 2px solid #d5bd98; border-radius: 14px; padding: 8px; }
+#activityArea .drop-zone.drag-over { background: #dff5ff; border-color: #2783b1; }
