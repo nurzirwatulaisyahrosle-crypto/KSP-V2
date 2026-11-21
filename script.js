@@ -1091,7 +1091,8 @@ function setAudioPlaybackMode() {
 // =====================================================
 
 function toggleQuestionAudio(src) {
-  if (currentAudio && !currentAudio.ended && currentAudio.src === new URL(src, document.baseURI).href) {
+  // The same button always stops any active or loading question audio.
+  if (currentAudio && !currentAudio.ended) {
     stopSpeech();
     return;
   }
@@ -1099,69 +1100,46 @@ function toggleQuestionAudio(src) {
 }
 
 function speak(src) {
-
   stopSuccessCheer();
   stopSpeech();
-
-  // Pastikan iPhone/iPad berada dalam mod media
   setAudioPlaybackMode();
 
-  currentAudio = new Audio(src);
-  const audioForThisRequest = currentAudio;
+  const audio = new Audio(src);
+  currentAudio = audio;
+  audio.preload = "auto";
+  audio.muted = false;
+  audio.volume = 1.0;
 
-  currentAudio.muted = false;
-  currentAudio.volume = 1.0;
-  currentAudio.preload = "auto";
-
-  currentAudio.addEventListener(
-    "canplaythrough",
-
-    function playAudio() {
-
-      // Jangan hidupkan semula audio lama selepas murid menekan RAKAM.
-      if (currentAudio !== audioForThisRequest) return;
-
-      // Pastikan sekali lagi sebelum play
-      setAudioPlaybackMode();
-
-      currentAudio.muted = false;
-      currentAudio.volume = 1.0;
-
-      currentAudio
-        .play()
-        .catch(() => {
-
-          fb(
-            "🔊 Audio tidak dapat dimainkan. Tekan DENGAR AUDIO sekali lagi.",
-            0
-          );
-
-        });
-
-    },
-
-    { once: true }
-  );
-
-  currentAudio.load();
+  // Begin playback directly from the button press, not a delayed
+  // canplaythrough event which can cause unexpected restarts.
+  audio.addEventListener("ended", () => {
+    if (currentAudio === audio) currentAudio = null;
+  }, { once: true });
+  audio.addEventListener("error", () => {
+    if (currentAudio === audio) {
+      currentAudio = null;
+      fb("Audio tidak dapat dimainkan. Cuba tekan semula.", 0);
+    }
+  }, { once: true });
+  const request = audio.play();
+  if (request && typeof request.catch === "function") {
+    request.catch(() => {
+      if (currentAudio === audio) {
+        currentAudio = null;
+        fb("Audio tidak dapat dimainkan. Cuba tekan semula.", 0);
+      }
+    });
+  }
 }
-
-
-// =====================================================
-// STOP AUDIO
-// =====================================================
 
 function stopSpeech() {
-
-  if (currentAudio) {
-
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
-
-  }
-
+  if (!currentAudio) return;
+  const audio = currentAudio;
+  currentAudio = null;
+  audio.pause();
+  try { audio.currentTime = 0; } catch (e) {}
 }
+
 // =====================================================
 // FEEDBACK
 // =====================================================
