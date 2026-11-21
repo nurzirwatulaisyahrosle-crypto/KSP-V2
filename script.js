@@ -615,7 +615,7 @@ function handleInteraction() {
     // Only one prompt is needed for an available mission.
     interaction.classList.add("hidden");
     interactBtn.textContent =
-      "✨ MULAKAN MISI";
+      "✨ MULAKAN MISI ✨";
   }
 }
 
@@ -1620,6 +1620,22 @@ function setStatus(
 }
 
 
+// Normalize a small, known set of English ASR outputs into Malay display text.
+// This does not translate arbitrary speech or override the learner's meaning.
+function malayTranscript(text = "") {
+  const words = {
+    apple: "epal", apples: "epal", carrot: "lobak", carrots: "lobak",
+    corn: "jagung", fish: "ikan", chicken: "ayam", cat: "kucing",
+    egg: "telur", eggs: "telur", salt: "garam", bowl: "mangkuk",
+    spoon: "sudu", fork: "garpu", knife: "pisau", book: "buku",
+    ball: "bola", field: "padang", soap: "sabun", soy: "soya"
+  };
+  return text.replace(/\\b[a-z]+\\b/gi, word => {
+    const translated = words[word.toLowerCase()];
+    return translated ? (word[0] === word[0].toUpperCase() ? translated[0].toUpperCase() + translated.slice(1) : translated) : word;
+  });
+}
+
 function setTranscript(
   text = ""
 ) {
@@ -1632,7 +1648,7 @@ function setTranscript(
   if (!el) return;
 
   el.textContent =
-    text;
+    malayTranscript(text);
 }
 
 
@@ -2261,7 +2277,7 @@ function evaluateVoiceResponse(
 
 
   const spoken =
-    norm(raw);
+    norm(malayTranscript(raw));
 
 
   // ===================================================
