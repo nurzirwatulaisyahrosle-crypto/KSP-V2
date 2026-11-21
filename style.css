@@ -2591,3 +2591,12 @@ button, #dpad, #dpad button {
 #missionHomeConfirm .mission-home-confirm-actions button { border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 900; cursor: pointer; }
 #missionHomeConfirm .mission-home-cancel { background: #e5e5e5; color: #333; }
 #missionHomeConfirm .mission-home-yes { background: #287d9f; color: white; }
+
+/* Icon-only HOME: top-left corner aligned with the close control */
+#checkpointModal .mission-home-btn {
+  top: 8px !important; left: 8px !important;
+  width: 42px !important; height: 42px !important;
+  padding: 0 !important; display: flex !important;
+  align-items: center !important; justify-content: center !important;
+  font-size: 23px !important; line-height: 1 !important;
+}
