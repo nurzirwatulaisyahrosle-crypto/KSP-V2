@@ -1090,6 +1090,14 @@ function setAudioPlaybackMode() {
 // PLAY AUDIO
 // =====================================================
 
+function toggleQuestionAudio(src) {
+  if (currentAudio && !currentAudio.ended && currentAudio.src === new URL(src, document.baseURI).href) {
+    stopSpeech();
+    return;
+  }
+  speak(src);
+}
+
 function speak(src) {
 
   stopSuccessCheer();
@@ -1255,7 +1263,7 @@ function cp1(d, total) {
     document.querySelector("#listenBtn");
 
 listenBtn.onclick = () => {
-  speak(d.audio);
+  toggleQuestionAudio(d.audio);
 };
   document
     .querySelectorAll(".picture-option")
@@ -1340,7 +1348,7 @@ function cp2(d, total) {
     document.querySelector("#listenBtn");
 
   listenBtn.onclick = () =>
-    speak(d.audio);
+    toggleQuestionAudio(d.audio);
 
   const items =
     document.querySelectorAll(
@@ -1530,7 +1538,7 @@ function renderVoice(
     setStatus("⏳ Mikrofon dihentikan. Tekan DENGAR AUDIO sekali lagi jika perlu.");
     return;
   }
-  speak(d.audio);
+  toggleQuestionAudio(d.audio);
 };
 
   /*
