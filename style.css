@@ -2560,3 +2560,13 @@ button, #dpad, #dpad button {
 #activityArea .drag-item { touch-action: none; user-select: none; }
 .drag-ghost { position: fixed; z-index: 20000; pointer-events: none; transform: translate(-50%,-50%); opacity: .88; font-size: 52px; background: #fff6; border: 2px solid #d5bd98; border-radius: 14px; padding: 8px; }
 #activityArea .drop-zone.drag-over { background: #dff5ff; border-color: #2783b1; }
+
+/* Final override: explicit red mission prompt, including mobile breakpoints */
+#gameScreen #interactBtn.interact-btn:not(.hidden) {
+  background: linear-gradient(180deg,#ff6571 0%,#e61d3c 55%,#b60827 100%) !important;
+  background-color: #e61d3c !important;
+  color: #ffffff !important;
+  border: 3px solid #ffe1e5 !important;
+  box-shadow: 0 5px 0 #8c0a23,0 0 18px #ff3656,0 0 32px #ff365699 !important;
+  animation: petaraRedGlow 1.4s ease-in-out infinite alternate !important;
+}
