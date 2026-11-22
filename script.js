@@ -1773,6 +1773,14 @@ function setTranscript(
 let recognitionSession = 0;
 let recognitionShouldStop = false;
 let recognitionEvaluated = false;
+let recognitionCloseTimer = null;
+let recognitionStartTimer = null;
+function clearRecognitionTimers() {
+  if (recognitionCloseTimer) clearTimeout(recognitionCloseTimer);
+  if (recognitionStartTimer) clearTimeout(recognitionStartTimer);
+  recognitionCloseTimer = null;
+  recognitionStartTimer = null;
+}
 
 let currentVoiceData = null;
 let currentVoiceIsCP4 = false;
@@ -1811,6 +1819,7 @@ function startRecognition(
     });
     return;
   }
+  clearRecognitionTimers();
 
   // Hentikan semua audio permainan sebelum meminta input mikrofon iPhone.
   stopSpeech();
@@ -1884,6 +1893,8 @@ function startRecognition(
 
   r.onaudiostart = () => {
     if (thisSession !== recognitionSession) return;
+    if (recognitionStartTimer) clearTimeout(recognitionStartTimer);
+    recognitionStartTimer = null;
     if (game.modalCheckpoint === 3) {
       console.info("[PeTara M3] audio input started", { question: activityIndex + 1, session: thisSession });
       setStatus("🎤 Input audio aktif. Sila bercakap.");
@@ -1913,6 +1924,8 @@ function startRecognition(
     ) {
       return;
     }
+    if (recognitionStartTimer) clearTimeout(recognitionStartTimer);
+    recognitionStartTimer = null;
 
     if (game.modalCheckpoint >= 3 && game.modalCheckpoint <= 5) {
       console.info("[PeTara Voice] recognition started", { mission: game.modalCheckpoint, question: activityIndex + 1, session: thisSession });
@@ -2058,6 +2071,8 @@ function startRecognition(
     ) {
       return;
     }
+    if (recognitionStartTimer) clearTimeout(recognitionStartTimer);
+    recognitionStartTimer = null;
 
     if (game.modalCheckpoint >= 3 && game.modalCheckpoint <= 5) {
       console.warn("[PeTara Voice] recognition error", { mission: game.modalCheckpoint, question: activityIndex + 1, session: thisSession, code: event.error });
@@ -2125,6 +2140,7 @@ function startRecognition(
     ) {
       return;
     }
+    clearRecognitionTimers();
 
     if (game.modalCheckpoint === 3) {
       console.info("[PeTara M3] recognition ended", {
@@ -2213,6 +2229,18 @@ function startRecognition(
 try {
 
   r.start();
+  // If Safari never signals start/end, release the blocked session.
+  recognitionStartTimer = setTimeout(() => {
+    if (recognition !== r || thisSession !== recognitionSession) return;
+    try { r.stop(); } catch (e) {}
+    recognition = null;
+    recognitionSession++;
+    isRecording = false;
+    setRecordButton(false);
+    setMicIndicator(false, "🎤 Mikrofon tidak aktif");
+    setStatus("⚠️ Mikrofon iPhone belum dibuka. Semak kebenaran mikrofon Safari dan tekan RAKAM semula.");
+    setAudioPlaybackMode();
+  }, 6500);
 
 } catch (err) {
 
@@ -2251,6 +2279,7 @@ function stopRecognition(silent = false) {
 
   if (!r) {
 
+    clearRecognitionTimers();
     isRecording = false;
 
     setRecordButton(false);
@@ -2287,6 +2316,17 @@ function stopRecognition(silent = false) {
     try {
 
       r.stop();
+      // Safari may omit onend when the screen changes during microphone startup.
+      if (recognitionCloseTimer) clearTimeout(recognitionCloseTimer);
+      recognitionCloseTimer = setTimeout(() => {
+        if (recognition !== r) return;
+        recognition = null;
+        recognitionSession++;
+        isRecording = false;
+        setRecordButton(false);
+        setMicIndicator(false, "🎤 Mikrofon tidak aktif");
+        setAudioPlaybackMode();
+      }, 1200);
 
     } catch (e) {
 
