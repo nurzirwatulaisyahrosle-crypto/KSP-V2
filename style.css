@@ -2808,3 +2808,44 @@ button, #dpad, #dpad button {
     bottom: max(49px, calc(env(safe-area-inset-bottom, 0px) + 42px));
   }
 }
+
+
+/* KSP-V2: numbered oral-answer instructions for Missions 3 and 4 only. */
+.voice-instruction-screen .voice-instruction-box {
+  max-width: 550px;
+  margin: 4px auto 16px;
+  padding: 14px 17px;
+  background: #dcecf8;
+  border: 2px solid #8cb9d8;
+  border-radius: 14px;
+  color: #263d46;
+  text-align: left;
+}
+.voice-instruction-screen .voice-instruction-box p {
+  margin: 0 0 9px;
+  max-width: none;
+  font-size: 17px;
+  line-height: 1.42;
+}
+.voice-instruction-screen .voice-instruction-number {
+  font-weight: 900;
+  color: #176a62;
+}
+.voice-instruction-screen .voice-instruction-example {
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid #aacbde;
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.voice-instruction-screen .voice-instruction-example > strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #6c4b22;
+}
+@media (max-width: 700px) {
+  .voice-instruction-screen .voice-instruction-box { padding: 10px 12px; margin-bottom: 10px; }
+  .voice-instruction-screen .voice-instruction-box p { font-size: 14px; margin-bottom: 7px; }
+  .voice-instruction-screen .voice-instruction-example { font-size: 13px; margin-top: 7px; padding-top: 6px; }
+}
