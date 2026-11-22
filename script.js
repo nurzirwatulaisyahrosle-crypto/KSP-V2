@@ -425,6 +425,7 @@ function enterWorld() {
   resizeWorld();
 
   requestAnimationFrame(loop);
+  if (window.__kspJoinMultiplayer) window.__kspJoinMultiplayer(game.studentName, () => game.player);
 }
 
 // =====================================================
@@ -3335,6 +3336,7 @@ window.addEventListener(
 function loop(time) {
 
   updatePlayer(time);
+  if (window.__kspMultiplayerUpdate) window.__kspMultiplayerUpdate();
 
   updateMissionGuide(time);
 
