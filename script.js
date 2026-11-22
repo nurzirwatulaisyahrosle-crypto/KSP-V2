@@ -754,18 +754,20 @@ function interact() {
     return;
   }
 
+  // Resume only the active mission at the saved unanswered question.
+  const saved = readSavedProgress(game.studentName);
+  const resumeQuestion = saved && saved.mission === target.id ? saved.question : 0;
   game.modalCheckpoint = target.id;
 
   modalTitle.textContent =
     `Misi ${target.id}`;
 
-  saveGameProgress(target.id, 0);
   petaraMusic.mission(true);
   modal.classList.remove("hidden");
 
   keys.clear();
 
-  openCheckpoint(target.id);
+  openCheckpoint(target.id, resumeQuestion);
 }
 
 // =====================================================
@@ -780,6 +782,7 @@ document
 
     // Tutup identiti misi supaya callback rakaman lama tidak
     // memproses jawapan selepas murid menekan X.
+    missionNavigationToken++;
     game.modalCheckpoint = null;
     modal.classList.add("hidden");
     petaraMusic.mission(false);
@@ -800,18 +803,18 @@ missionHomeCancel.addEventListener("click", () => {
   missionHomeBtn.focus();
 });
 missionHomeYes.addEventListener("click", () => {
-  // Cancel active question audio and microphone before resetting the game.
+  // HOME returns to the map without restarting or changing the saved question.
   stopSpeech();
   stopRecognition(true);
-  if (typeof micTestRecognition !== "undefined" && micTestRecognition) {
-    try { micTestRecognition.stop(); } catch (e) {}
-  }
-  // Kemajuan telah disimpan ketika soalan dibuka atau dijawab.
-  // Jangan timpa soalan seterusnya jika HOME ditekan semasa animasi kejayaan.
+  missionNavigationToken++; // cancel pending question-transition callbacks
   game.modalCheckpoint = null;
   missionHomeConfirm.classList.add("hidden");
   modal.classList.add("hidden");
-  location.reload();
+  petaraMusic.mission(false);
+  keys.clear();
+  interaction.classList.add("hidden");
+  interactBtn.classList.add("hidden");
+  handleInteraction();
 });
 
 // =====================================================
@@ -819,6 +822,7 @@ missionHomeYes.addEventListener("click", () => {
 // =====================================================
 
 let activityIndex = 0;
+let missionNavigationToken = 0;
 
 let recognition = null;
 let isRecording = false;
@@ -987,13 +991,19 @@ const checkpointInstructions = {
 // OPEN CHECKPOINT
 // =====================================================
 
-function openCheckpoint(id) {
-  activityIndex = 0;
+function openCheckpoint(id, resumeQuestion = 0) {
+  missionNavigationToken++;
+  activityIndex = resumeQuestion;
 
   stopSpeech();
   stopRecognition(true);
 
-  showCheckpointInstruction(id);
+  if (resumeQuestion > 0) {
+    renderActivity(id);
+  } else {
+    saveGameProgress(id, 0);
+    showCheckpointInstruction(id);
+  }
 }
 
 // =====================================================
@@ -2602,8 +2612,10 @@ function advance() {
                      game.score + (id === 4 ? 10 : 0));
   }
 
+  const navigationToken = missionNavigationToken;
   window.setTimeout(
     () => {
+      if (navigationToken !== missionNavigationToken || game.modalCheckpoint !== id) return;
 
       activityIndex += 1;
 
