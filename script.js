@@ -211,8 +211,20 @@ function chooseAvatar(id) {
 document.querySelectorAll(".avatar-option").forEach(button =>
   button.addEventListener("click", () => chooseAvatar(button.dataset.avatar))
 );
-function avatarImage(direction = "down") {
-  return "assets/avatars/" + game.avatar + "-" + direction + ".svg";
+const APPROVED_AVATAR_ATLAS = "assets/avatars/approved-explorers-atlas.svg";
+const BLANK_AVATAR_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+const AVATAR_DIRECTIONS = ["down", "up", "left", "right"];
+function applyAvatarArtwork(img, avatar, direction = "down", portrait = false) {
+  const col = AVATAR_IDS.indexOf(avatar);
+  if (!img || col < 0) return;
+  const row = portrait ? 0 : Math.max(0, AVATAR_DIRECTIONS.indexOf(direction)) + 1;
+  const w = portrait ? 38 : 58;
+  const h = portrait ? 42 : 70;
+  if (img.getAttribute("src") !== BLANK_AVATAR_PIXEL) img.setAttribute("src", BLANK_AVATAR_PIXEL);
+  img.style.backgroundImage = 'url("' + APPROVED_AVATAR_ATLAS + '")';
+  img.style.backgroundRepeat = "no-repeat";
+  img.style.backgroundSize = (w * 6) + "px " + (h * 5) + "px";
+  img.style.backgroundPosition = (-col * w) + "px " + (-row * h) + "px";
 }
 
 function startGame() {
@@ -231,9 +243,9 @@ function startGame() {
   }
 
   game.studentName = name;
-  playerSprite.src = avatarImage("down");
+  applyAvatarArtwork(playerSprite, game.avatar, "down");
   const hudPortrait = document.querySelector("#hud .hud-player img");
-  if (hudPortrait) hudPortrait.src = avatarImage("down");
+  if (hudPortrait) applyAvatarArtwork(hudPortrait, game.avatar, "down", true);
 
   hudName.textContent = name;
   playerName.textContent = name;
@@ -3113,8 +3125,7 @@ function updatePlayer(time) {
 
 
   // Use the EXACT selected avatar assets for every movement direction.
-  const selectedSprite = avatarImage(game.player.direction);
-  if (playerSprite.getAttribute("src") !== selectedSprite) playerSprite.src = selectedSprite;
+  applyAvatarArtwork(playerSprite, game.avatar, game.player.direction);
   playerSprite.classList.toggle("avatar-walking", Boolean(game.player.moving));
 
 
