@@ -2,6 +2,7 @@ const MAP_W = 1600;
 const MAP_H = 900;
 
 const game = {
+  avatar: "",
   studentName: "",
   score: 0,
   currentCheckpoint: 1,
@@ -195,6 +196,25 @@ const petaraMusic = (() => {
 // START GAME
 // =====================================================
 
+const AVATAR_IDS = ["boy1", "boy2", "girl1", "girl2", "teacherM", "teacherF"];
+function chooseAvatar(id) {
+  if (!AVATAR_IDS.includes(id)) return;
+  game.avatar = id;
+  document.querySelectorAll(".avatar-option").forEach(button => {
+    const selected = button.dataset.avatar === id;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  const error = document.querySelector("#avatarError");
+  if (error) error.textContent = "";
+}
+document.querySelectorAll(".avatar-option").forEach(button =>
+  button.addEventListener("click", () => chooseAvatar(button.dataset.avatar))
+);
+function avatarImage(direction = "down") {
+  return "assets/avatars/" + game.avatar + "-" + direction + ".svg";
+}
+
 function startGame() {
   const name = nameInput.value.trim();
 
@@ -205,7 +225,15 @@ function startGame() {
     return;
   }
 
+  if (!AVATAR_IDS.includes(game.avatar)) {
+    document.querySelector("#avatarError").textContent = "⚠️ Sila pilih avatar kamu dahulu.";
+    return;
+  }
+
   game.studentName = name;
+  playerSprite.src = avatarImage("down");
+  const hudPortrait = document.querySelector("#hud .hud-player img");
+  if (hudPortrait) hudPortrait.src = avatarImage("down");
 
   hudName.textContent = name;
   playerName.textContent = name;
@@ -425,7 +453,7 @@ function enterWorld() {
   resizeWorld();
 
   requestAnimationFrame(loop);
-  if (window.__kspJoinMultiplayer) window.__kspJoinMultiplayer(game.studentName, () => game.player);
+  if (window.__kspJoinMultiplayer) window.__kspJoinMultiplayer(game.studentName, () => game.player, game.avatar);
 }
 
 // =====================================================
@@ -3084,24 +3112,10 @@ function updatePlayer(time) {
   }
 
 
-  if (
-    game.player.moving
-  ) {
-
-    playerSprite.src =
-      `assets/player/petara-${game.player.direction}-${game.player.frame || 1}.png`;
-
-  }
-
-  else {
-
-    playerSprite.src =
-      game.player.direction ===
-      "down"
-        ? "assets/player/petara-idle.png"
-        : `assets/player/petara-${game.player.direction}-1.png`;
-
-  }
+  // Use the EXACT selected avatar assets for every movement direction.
+  const selectedSprite = avatarImage(game.player.direction);
+  if (playerSprite.getAttribute("src") !== selectedSprite) playerSprite.src = selectedSprite;
+  playerSprite.classList.toggle("avatar-walking", Boolean(game.player.moving));
 
 
   player.style.left =
