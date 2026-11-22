@@ -910,22 +910,18 @@ const checkpointInstructions = {
 
   3: {
     icon: "🎤",
-
-    title:
-      "Dengar dan berbual.",
-
-    text:
-      'Dengar dengan <strong>teliti</strong>, kemudian <strong>berikan jawapan secara lisan</strong>.'
+    title: "Dengar dan berbual.",
+    text: 'Dengar dengan <strong>teliti</strong>, kemudian <strong>berikan jawapan secara lisan</strong>.',
+    secondInstruction: 'Jawab soalan menggunakan <strong>ayat yang lengkap dan betul</strong>.',
+    example: ['Apakah makanan kesukaan Rafi?', 'Makanan kesukaan Rafi ialah bakso.']
   },
 
   4: {
     icon: "🗣️",
-
-    title:
-      "Dengar dan berikan respons.",
-
-    text:
-      'Dengar dengan <strong>teliti</strong>, kemudian <strong>berikan respons yang sesuai</strong>.'
+    title: "Dengar dan berikan respons.",
+    text: 'Dengar dengan <strong>teliti</strong>, kemudian <strong>berikan respons yang sesuai</strong>.',
+    secondInstruction: 'Berikan respons menggunakan <strong>ayat yang lengkap dan betul</strong>.',
+    example: ['Bolehkah kamu tolong tutup pintu itu?', 'Boleh, saya akan menutup pintu itu.']
   },
 
   5: {
@@ -967,23 +963,30 @@ function showCheckpointInstruction(id) {
   const info =
     checkpointInstructions[id];
 
-  modalTitle.textContent =
-    `Misi ${id}`;
+  // In Missions 3 and 4, use the learning-skill heading instead of "Misi 3/4".
+  modalTitle.textContent = info.secondInstruction ? info.title : `Misi ${id}`;
 
   activityArea.innerHTML = `
-    <div class="instruction-screen">
+    <div class="instruction-screen ${info.secondInstruction ? "voice-instruction-screen" : ""}">
 
       <div class="instruction-icon">
         ${info.icon}
       </div>
 
-      <h3>
-        ${info.title}
-      </h3>
-
-      <p>
-        ${info.text}
-      </p>
+      ${info.secondInstruction ? `
+        <div class="voice-instruction-box">
+          <p><span class="voice-instruction-number">1.</span> ${info.text}</p>
+          <p><span class="voice-instruction-number">2.</span> ${info.secondInstruction}</p>
+          <div class="voice-instruction-example">
+            <strong>Contoh:</strong>
+            <div>${info.example[0]}</div>
+            <div>${info.example[1]}</div>
+          </div>
+        </div>
+      ` : `
+        <h3>${info.title}</h3>
+        <p>${info.text}</p>
+      `}
 
       <div class="activity-actions">
 
