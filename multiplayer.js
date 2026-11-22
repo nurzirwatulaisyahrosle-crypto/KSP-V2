@@ -91,7 +91,14 @@ export async function joinMultiplayer(name, getPosition, selectedAvatar){
   unsubscribe=onValue(playersRef,s=>drawPlayers(s,user.uid),()=>showStatus("Sambungan multiplayer terganggu"));
   joined=true;
   const update=async()=>{if(!joined)return;const p=getPosition();if(!p)return;const now=Date.now();if(now-lastUpdate<180)return;lastUpdate=now;
-   try{await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",avatar,updatedAt:serverTimestamp()});}catch(e){showStatus("Multiplayer belum tersedia");}
+   try{
+    await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",avatar,updatedAt:serverTimestamp()});
+   }catch(e){
+    // Compatibility: older RTDB rules may not yet permit the new avatar field.
+    // Keep existing multiplayer working until the avatar rule is deployed.
+    try{await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",updatedAt:serverTimestamp()});}
+    catch(error){showStatus("Multiplayer belum tersedia");}
+   }
   };
   window.__kspMultiplayerUpdate=update;await update();
  }catch(e){showStatus("Multiplayer belum tersedia");}
