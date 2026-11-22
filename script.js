@@ -1806,9 +1806,7 @@ function startRecognition(
 
   // Sama seperti UJI MIKROFON
   r.lang = "ms-MY";
-  // Misi 3: rakam satu respons dan tamat secara semula jadi selepas murid berhenti bercakap.
-  // Misi 4 dan 5 mengekalkan tetapan rakaman asal.
-  r.continuous = game.modalCheckpoint !== 3;
+  r.continuous = true;
   r.interimResults = true;
   r.maxAlternatives = 5;
 
@@ -2081,12 +2079,9 @@ function startRecognition(
       });
     }
 
-    // Untuk Misi 3, biarkan sesi tamat selepas satu respons.
-    // Jangan hidupkan semula sesi Safari yang sama secara automatik:
-    // ia boleh menyebabkan mikrofon terkunci atau memerlukan beberapa tekanan.
-    // Misi 4/5 kekalkan tingkah laku asal.
-    if (!recognitionShouldStop && thisMission !== 3 &&
-        game.modalCheckpoint === thisMission && activityIndex === thisQuestion) {
+    // Browser speech engines can end on silence even in continuous mode.
+    // Retry while the learner has not manually stopped; never evaluate early.
+    if (!recognitionShouldStop && game.modalCheckpoint === thisMission && activityIndex === thisQuestion) {
       try {
         r.start();
         setStatus("🎙️ Mikrofon bersambung — tekan untuk berhenti apabila selesai.");
@@ -2128,10 +2123,8 @@ function startRecognition(
         .trim();
 
 
-    // Misi 3: respons dinilai apabila pelayar menamatkan rakaman
-    // selepas murid berhenti bercakap, tanpa perlu menekan RAKAM lagi.
-    // Misi 4/5 masih menunggu butang BERHENTI seperti sebelum ini.
-    if (heard && (recognitionShouldStop || thisMission === 3)) {
+    // Nilai jawapan hanya selepas murid menekan butang berhenti.
+    if (heard && recognitionShouldStop) {
 
       if (!recognitionEvaluated) {
 
@@ -2148,12 +2141,11 @@ function startRecognition(
     }
 
 
-    // Tiada suara dikesan: sesi dilepaskan supaya satu tekanan
-    // seterusnya benar-benar boleh membuka rakaman baharu.
+    // Tiada suara
     if (!recognitionShouldStop) {
 
       setStatus(
-        "🎤 Suara belum dapat dikesan. Tekan UNTUK RAKAM dan cuba lagi."
+        "🎤 Suara belum dapat dikesan. Tekan MULA RAKAM dan cuba lagi."
       );
     }
   };
