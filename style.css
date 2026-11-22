@@ -2776,3 +2776,35 @@ button, #dpad, #dpad button {
 @media (prefers-reduced-motion: reduce) {
   #startScreen .night-stars { animation: none; }
 }
+
+
+/* KSP-V2: persistent maker credit across start, prep, map, missions and results. */
+.global-creator-credit {
+  position: fixed;
+  left: max(13px, env(safe-area-inset-left, 0px));
+  bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  z-index: 12010;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  max-width: calc(100vw - 26px);
+  font: 700 clamp(12px, 1.8vw, 14px)/1.35 "Comic Sans MS", "Comic Sans", sans-serif;
+  letter-spacing: .35px;
+  color: rgba(248, 250, 255, .83);
+  text-shadow: 0 1px 3px #06122bcc, 0 0 7px #06122b99;
+  white-space: nowrap;
+}
+/* Raise only the map's WASD instructions to leave a visible space below. */
+#gameScreen #movementHelp {
+  bottom: max(53px, calc(env(safe-area-inset-bottom, 0px) + 45px));
+}
+@media (max-width: 600px) {
+  .global-creator-credit {
+    left: max(12px, env(safe-area-inset-left, 0px));
+    bottom: max(9px, env(safe-area-inset-bottom, 0px));
+    font-size: 12px;
+  }
+  #gameScreen #movementHelp {
+    bottom: max(49px, calc(env(safe-area-inset-bottom, 0px) + 42px));
+  }
+}
