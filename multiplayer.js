@@ -80,10 +80,12 @@ function drawPlayers(snapshot,uid){
  const localPosition=sessionInfo?.getPosition?.();
  const ownX=Number(localPosition?.x), ownY=Number(localPosition?.y);
  const hasPosition=Number.isFinite(ownX)&&Number.isFinite(ownY);
+ const visibleIds=new Set();
  for(const [id,p] of Object.entries(players)){
   if(id===uid||!p||typeof p.name!=="string")continue;
   // Render only nearby avatars; remote players still count towards the Live total.
   if(!hasPosition || Math.hypot(Number(p.x)-ownX,Number(p.y)-ownY)>AVATAR_VISIBILITY_RADIUS)continue;
+  visibleIds.add(id);
   const x=Math.max(0,Math.min(1600,Number(p.x)||0));
   const y=Math.max(0,Math.min(900,Number(p.y)||0));
   let state=others.get(id);
@@ -110,7 +112,7 @@ function drawPlayers(snapshot,uid){
   state.targetY=y;
  }
  for(const [id,state] of others){
-  if(!players[id]){state.el.remove();others.delete(id);}
+  if(!visibleIds.has(id)){state.el.remove();others.delete(id);}
  }
  if(!animationId)animationId=requestAnimationFrame(animateRemotePlayers);
  showStatus("👥 "+Object.keys(players).length+"/"+MAX_PLAYERS+" PEMAIN");
