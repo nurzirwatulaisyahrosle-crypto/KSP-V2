@@ -212,7 +212,7 @@ document.querySelectorAll(".avatar-option").forEach(button =>
   button.addEventListener("click", () => chooseAvatar(button.dataset.avatar))
 );
 const APPROVED_AVATAR_ATLAS = "assets/avatars/approved-explorers-atlas.svg";
-const BLANK_AVATAR_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACAUwAOw==";
+const BLANK_AVATAR_PIXEL = "data:image/gif;base64,R0lGODlhAQABAIEAAAAAAAAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAgEAAEEBAA7";
 const AVATAR_DIRECTIONS = ["down", "up", "left", "right"];
 function applyAvatarArtwork(img, avatar, direction = "down", portrait = false) {
   const col = AVATAR_IDS.indexOf(avatar);
