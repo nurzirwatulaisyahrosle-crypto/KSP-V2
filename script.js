@@ -193,20 +193,20 @@ const petaraMusic = (() => {
 })();
 
 // =====================================================
-// RESUME GAME — saved only in this browser for the same player name
+// HOME-only resume: memory lasts only until the page reloads or closes.
+// No progress is restored after refresh, closing the tab, or pressing X.
 // =====================================================
-const PROGRESS_KEY = "ksp-v2-resume-v1";
-let pendingResume = null;
+let currentSessionProgress = null;
+// Delete progress saved by the previous version, which must not resume anymore.
+try { localStorage.removeItem("ksp-v2-resume-v1"); } catch (e) {}
 
 function readSavedProgress(name) {
-  try {
-    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "null");
-    if (!saved || saved.name !== name || !Number.isInteger(saved.mission) ||
-        saved.mission < 1 || saved.mission > 6 ||
-        !Number.isInteger(saved.question) || saved.question < 0 ||
-        (saved.mission <= 5 && saved.question >= CP[saved.mission].length)) return null;
-    return saved;
-  } catch (e) { return null; }
+  const saved = currentSessionProgress;
+  if (!saved || saved.name !== name || !Number.isInteger(saved.mission) ||
+      saved.mission < 1 || saved.mission > 6 ||
+      !Number.isInteger(saved.question) || saved.question < 0 ||
+      (saved.mission <= 5 && saved.question >= CP[saved.mission].length)) return null;
+  return saved;
 }
 
 function saveGameProgress(mission = game.modalCheckpoint || game.currentCheckpoint,
@@ -214,17 +214,11 @@ function saveGameProgress(mission = game.modalCheckpoint || game.currentCheckpoi
                           completed = game.completedCheckpoints,
                           score = game.score) {
   if (!game.studentName) return;
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify({
-      name: game.studentName,
-      avatar: game.avatar,
-      mission, question, score,
-      completed: [...completed],
-      x: game.player.x, y: game.player.y
-    }));
-  } catch (e) {
-    console.warn("[PeTara] Cannot save local progress", e);
-  }
+  currentSessionProgress = {
+    name: game.studentName,
+    mission, question, score,
+    completed: [...completed]
+  };
 }
 
 // =====================================================
@@ -282,19 +276,6 @@ function startGame() {
   }
 
   game.studentName = name;
-  const saved = readSavedProgress(name);
-  pendingResume = saved && saved.mission <= 5 ? saved : null;
-  if (pendingResume) {
-    game.score = Number.isFinite(saved.score) ? saved.score : 0;
-    game.completedCheckpoints = Array.isArray(saved.completed)
-      ? saved.completed.filter(id => Number.isInteger(id) && id >= 1 && id <= 5)
-      : [];
-    game.currentCheckpoint = saved.mission;
-    if (Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
-      game.player.x = Math.max(0, Math.min(MAP_W, saved.x));
-      game.player.y = Math.max(0, Math.min(MAP_H, saved.y));
-    }
-  }
   applyAvatarArtwork(playerSprite, game.avatar, "down");
   const hudPortrait = document.querySelector("#hud .hud-player img");
   if (hudPortrait) applyAvatarArtwork(hudPortrait, game.avatar, "down", true);
@@ -304,12 +285,6 @@ function startGame() {
 
   startScreen.classList.add("hidden");
   petaraMusic.play();
-
-  // Returning players with saved progress continue straight to their last question.
-  if (pendingResume) {
-    enterWorld();
-    return;
-  }
 
   if (prepScreen) {
     prepScreen.classList.remove("hidden");
@@ -524,18 +499,6 @@ function enterWorld() {
 
   requestAnimationFrame(loop);
   if (window.__kspJoinMultiplayer) window.__kspJoinMultiplayer(game.studentName, () => game.player, game.avatar);
-
-  if (pendingResume) {
-    const resume = pendingResume;
-    pendingResume = null;
-    game.modalCheckpoint = resume.mission;
-    activityIndex = resume.question;
-    modalTitle.textContent = `Misi ${resume.mission}`;
-    modal.classList.remove("hidden");
-    petaraMusic.mission(true);
-    keys.clear();
-    renderActivity(resume.mission);
-  }
 }
 
 // =====================================================
@@ -780,12 +743,13 @@ document
     stopSpeech();
     stopRecognition(true);
 
-    // Tutup identiti misi supaya callback rakaman lama tidak
-    // memproses jawapan selepas murid menekan X.
+    // X means a completely fresh game, unlike HOME which returns to the map.
+    currentSessionProgress = null;
     missionNavigationToken++;
     game.modalCheckpoint = null;
     modal.classList.add("hidden");
     petaraMusic.mission(false);
+    location.reload();
   });
 
 // HOME within each mission: confirm before restarting the adventure.
@@ -807,6 +771,17 @@ missionHomeYes.addEventListener("click", () => {
   stopSpeech();
   stopRecognition(true);
   missionNavigationToken++; // cancel pending question-transition callbacks
+  // If HOME is pressed during the final-answer celebration, apply the
+  // completed mission immediately so the next mission is unlocked on the map.
+  const saved = readSavedProgress(game.studentName);
+  if (saved && saved.mission !== game.modalCheckpoint &&
+      Array.isArray(saved.completed)) {
+    game.completedCheckpoints = saved.completed.slice();
+    game.currentCheckpoint = saved.mission;
+    game.score = saved.score;
+    updateHUD();
+    refreshCheckpointGraphics();
+  }
   game.modalCheckpoint = null;
   missionHomeConfirm.classList.add("hidden");
   modal.classList.add("hidden");
@@ -2784,10 +2759,9 @@ function completeCP(id) {
 
   refreshCheckpointGraphics();
 
-  // Record the completed mission and the next available checkpoint.
-  // A fully finished adventure can be started fresh next time.
+  // Progress remains available only through HOME during this open game.
   if (id === 5) {
-    try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+    currentSessionProgress = null;
   } else {
     saveGameProgress(game.currentCheckpoint, 0);
   }
@@ -2890,7 +2864,7 @@ document
   .addEventListener(
     "click",
     () => {
-      try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+      currentSessionProgress = null;
       location.reload();
     }
   );
