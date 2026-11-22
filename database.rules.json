@@ -7,8 +7,8 @@
         ".read": "auth != null && $roomId === 'kelas'",
         "players": {
           "$uid": {
-            ".write": "auth != null && auth.uid === $uid && (newData.exists() || data.exists())",
-            ".validate": "newData.hasChildren(['name','x','y','direction','updatedAt']) && newData.childrenCount <= 5",
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || data.exists() || root.child('rooms/kelas/players').numChildren() < 100)",
+            ".validate": "newData.hasChildren(['name','x','y','direction','updatedAt']) && newData.childrenCount <= 6",
             "name": {
               ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24"
             },
@@ -26,6 +26,9 @@
             },
             "$other": {
               ".validate": false
+            },
+            "avatar": {
+              ".validate": "newData.isString() && newData.val().matches(/^(boy1|boy2|girl1|girl2|teacherM|teacherF)$/)"
             }
           }
         }
