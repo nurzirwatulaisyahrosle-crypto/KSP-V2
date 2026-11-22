@@ -193,6 +193,41 @@ const petaraMusic = (() => {
 })();
 
 // =====================================================
+// RESUME GAME — saved only in this browser for the same player name
+// =====================================================
+const PROGRESS_KEY = "ksp-v2-resume-v1";
+let pendingResume = null;
+
+function readSavedProgress(name) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "null");
+    if (!saved || saved.name !== name || !Number.isInteger(saved.mission) ||
+        saved.mission < 1 || saved.mission > 6 ||
+        !Number.isInteger(saved.question) || saved.question < 0 ||
+        (saved.mission <= 5 && saved.question >= CP[saved.mission].length)) return null;
+    return saved;
+  } catch (e) { return null; }
+}
+
+function saveGameProgress(mission = game.modalCheckpoint || game.currentCheckpoint,
+                          question = activityIndex,
+                          completed = game.completedCheckpoints,
+                          score = game.score) {
+  if (!game.studentName) return;
+  try {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+      name: game.studentName,
+      avatar: game.avatar,
+      mission, question, score,
+      completed: [...completed],
+      x: game.player.x, y: game.player.y
+    }));
+  } catch (e) {
+    console.warn("[PeTara] Cannot save local progress", e);
+  }
+}
+
+// =====================================================
 // START GAME
 // =====================================================
 
@@ -247,6 +282,19 @@ function startGame() {
   }
 
   game.studentName = name;
+  const saved = readSavedProgress(name);
+  pendingResume = saved && saved.mission <= 5 ? saved : null;
+  if (pendingResume) {
+    game.score = Number.isFinite(saved.score) ? saved.score : 0;
+    game.completedCheckpoints = Array.isArray(saved.completed)
+      ? saved.completed.filter(id => Number.isInteger(id) && id >= 1 && id <= 5)
+      : [];
+    game.currentCheckpoint = saved.mission;
+    if (Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
+      game.player.x = Math.max(0, Math.min(MAP_W, saved.x));
+      game.player.y = Math.max(0, Math.min(MAP_H, saved.y));
+    }
+  }
   applyAvatarArtwork(playerSprite, game.avatar, "down");
   const hudPortrait = document.querySelector("#hud .hud-player img");
   if (hudPortrait) applyAvatarArtwork(hudPortrait, game.avatar, "down", true);
@@ -256,6 +304,12 @@ function startGame() {
 
   startScreen.classList.add("hidden");
   petaraMusic.play();
+
+  // Returning players with saved progress continue straight to their last question.
+  if (pendingResume) {
+    enterWorld();
+    return;
+  }
 
   if (prepScreen) {
     prepScreen.classList.remove("hidden");
@@ -470,6 +524,18 @@ function enterWorld() {
 
   requestAnimationFrame(loop);
   if (window.__kspJoinMultiplayer) window.__kspJoinMultiplayer(game.studentName, () => game.player, game.avatar);
+
+  if (pendingResume) {
+    const resume = pendingResume;
+    pendingResume = null;
+    game.modalCheckpoint = resume.mission;
+    activityIndex = resume.question;
+    modalTitle.textContent = `Misi ${resume.mission}`;
+    modal.classList.remove("hidden");
+    petaraMusic.mission(true);
+    keys.clear();
+    renderActivity(resume.mission);
+  }
 }
 
 // =====================================================
@@ -693,6 +759,7 @@ function interact() {
   modalTitle.textContent =
     `Misi ${target.id}`;
 
+  saveGameProgress(target.id, 0);
   petaraMusic.mission(true);
   modal.classList.remove("hidden");
 
@@ -739,6 +806,7 @@ missionHomeYes.addEventListener("click", () => {
   if (typeof micTestRecognition !== "undefined" && micTestRecognition) {
     try { micTestRecognition.stop(); } catch (e) {}
   }
+  saveGameProgress(game.modalCheckpoint, activityIndex);
   game.modalCheckpoint = null;
   missionHomeConfirm.classList.add("hidden");
   modal.classList.add("hidden");
@@ -1053,6 +1121,7 @@ function shell(title, total, body) {
 function renderActivity(id) {
   stopSuccessCheer();
   stopSpeech();
+  saveGameProgress(id, activityIndex);
   
 
   const d =
@@ -2522,6 +2591,16 @@ function advance() {
     updateHUD();
   }
 
+  // Commit the NEXT unanswered question immediately, before the celebration delay.
+  // This also handles leaving/reloading in the six seconds after a correct answer.
+  if (activityIndex + 1 < CP[id].length) {
+    saveGameProgress(id, activityIndex + 1);
+  } else {
+    const completed = [...new Set([...game.completedCheckpoints, id])];
+    saveGameProgress(id < 5 ? id + 1 : 6, 0, completed,
+                     game.score + (id === 4 ? 10 : 0));
+  }
+
   window.setTimeout(
     () => {
 
@@ -2692,6 +2771,14 @@ function completeCP(id) {
 
   refreshCheckpointGraphics();
 
+  // Record the completed mission and the next available checkpoint.
+  // A fully finished adventure can be started fresh next time.
+  if (id === 5) {
+    try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+  } else {
+    saveGameProgress(game.currentCheckpoint, 0);
+  }
+
   activityArea.innerHTML = `
 
     <div class="instruction-screen">
@@ -2789,7 +2876,10 @@ document
   .querySelector("#restartBtn")
   .addEventListener(
     "click",
-    () => location.reload()
+    () => {
+      try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+      location.reload();
+    }
   );
 
 
