@@ -10,6 +10,7 @@ let ownUid=null, latestPlayers={}, refreshTimer=null, pendingLeave=null, session
 let lastMapDraw=0, lastPositionSend=0;
 const MAX_PLAYERS=100;
 const AVATAR_VISIBILITY_RADIUS=250;
+const MAX_VISIBLE_REMOTE_AVATARS=24;
 const PRESENCE_TIMEOUT_MS=35000;
 const POSITION_UPDATE_MS=1000;
 const POSITION_CHANGE_UNITS=7;
@@ -80,12 +81,15 @@ function drawPlayers(snapshot,uid){
  const localPosition=sessionInfo?.getPosition?.();
  const ownX=Number(localPosition?.x), ownY=Number(localPosition?.y);
  const hasPosition=Number.isFinite(ownX)&&Number.isFinite(ownY);
- const visibleIds=new Set();
- for(const [id,p] of Object.entries(players)){
-  if(id===uid||!p||typeof p.name!=="string")continue;
-  // Render only nearby avatars; remote players still count towards the Live total.
-  if(!hasPosition || Math.hypot(Number(p.x)-ownX,Number(p.y)-ownY)>AVATAR_VISIBILITY_RADIUS)continue;
-  visibleIds.add(id);
+ // Cap the number of visible sprites when all 100 players crowd around a checkpoint.
+ const nearby=Object.entries(players)
+  .filter(([id,p])=>id!==uid&&p&&typeof p.name==="string")
+  .map(([id,p])=>({id,p,distance:hasPosition?Math.hypot(Number(p.x)-ownX,Number(p.y)-ownY):Infinity}))
+  .filter(entry=>Number.isFinite(entry.distance)&&entry.distance<=AVATAR_VISIBILITY_RADIUS)
+  .sort((a,b)=>a.distance-b.distance)
+  .slice(0,MAX_VISIBLE_REMOTE_AVATARS);
+ const visibleIds=new Set(nearby.map(entry=>entry.id));
+ for(const {id,p} of nearby){
   const x=Math.max(0,Math.min(1600,Number(p.x)||0));
   const y=Math.max(0,Math.min(900,Number(p.y)||0));
   let state=others.get(id);
