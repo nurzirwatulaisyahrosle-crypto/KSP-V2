@@ -18,7 +18,7 @@ function drawPlayers(snapshot,uid){
     const sprite=document.createElement("img");sprite.style.cssText="position:absolute;left:0;bottom:0;width:58px;height:70px;object-fit:contain";el.append(sprite);world.append(el);others.set(id,el);
   }
   el.firstChild.textContent=p.name.slice(0,24);
-  el.lastChild.src="assets/player/petara-"+(["up","down","left","right"].includes(p.direction)?p.direction:"down")+"-1.png";
+  const spriteUrl="assets/player/petara-"+(["up","down","left","right"].includes(p.direction)?p.direction:"down")+"-1.png";if(el.lastChild.getAttribute("src")!==spriteUrl)el.lastChild.src=spriteUrl;
   el.style.left=Math.max(0,Math.min(1600,Number(p.x)||0))+"px";el.style.top=Math.max(0,Math.min(900,Number(p.y)||0))+"px";
  }
  for(const [id,el] of others){if(!players[id]){el.remove();others.delete(id);}}
@@ -29,7 +29,7 @@ export async function joinMultiplayer(name, getPosition){
  try{
   const user=(await signInAnonymously(auth)).user;
   const playersRef=ref(db,"rooms/kelas/players");
-  const current=await new Promise((resolve,reject)=>{const stop=onValue(playersRef,s=>{stop();resolve(s.val()||{});},reject,{onlyOnce:true});});
+  const current=await new Promise((resolve,reject)=>onValue(playersRef,s=>resolve(s.val()||{}),reject,{onlyOnce:true}));
   if(Object.keys(current).length>=30&&!current[user.uid]){showStatus("Bilik penuh (30 pemain)");return;}
   ownRef=ref(db,"rooms/kelas/players/"+user.uid);
   await onDisconnect(ownRef).remove();
