@@ -35,9 +35,23 @@ function animateRemotePlayers(time){
   state.el.style.top=state.y+"px";
   const moving=Math.abs(state.targetX-state.x)>0.4||Math.abs(state.targetY-state.y)>0.4||time-state.lastMotion<230;
   const frame=moving?1+Math.floor(time/145)%4:1;
-  const src=state.avatar ? "assets/avatars/"+state.avatar+"-"+state.direction+".svg" : "assets/player/petara-"+state.direction+"-"+frame+".png";
-  state.img.style.transform=state.avatar && moving ? "translateY("+(frame%2?-2:0)+"px)" : "";
-  if(state.img.getAttribute("src")!==src)state.img.src=src;
+  const avatarIds=["boy1","boy2","girl1","girl2","teacherM","teacherF"];
+  const avatarIndex=avatarIds.indexOf(state.avatar);
+  state.img.style.transform=avatarIndex>=0 && moving ? "translateY("+(frame%2?-2:0)+"px)" : "";
+  if(avatarIndex>=0) {
+   const blank="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+   if(state.img.getAttribute("src")!==blank)state.img.setAttribute("src",blank);
+   const directions=["down","up","left","right"];
+   const directionIndex=Math.max(0,directions.indexOf(state.direction));
+   state.img.style.backgroundImage='url("assets/avatars/approved-explorers-atlas.svg")';
+   state.img.style.backgroundRepeat="no-repeat";
+   state.img.style.backgroundSize="348px 350px";
+   state.img.style.backgroundPosition=(-avatarIndex*58)+"px "+(-(directionIndex+1)*70)+"px";
+  } else {
+   state.img.style.backgroundImage="";
+   const src="assets/player/petara-"+state.direction+"-"+frame+".png";
+   if(state.img.getAttribute("src")!==src)state.img.src=src;
+  }
  }
  animationId=requestAnimationFrame(animateRemotePlayers);
 }
