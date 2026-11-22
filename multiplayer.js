@@ -39,14 +39,14 @@ function animateRemotePlayers(time){
   const avatarIndex=avatarIds.indexOf(state.avatar);
   state.img.style.transform=avatarIndex>=0 && moving ? "translateY("+(frame%2?-2:0)+"px)" : "";
   if(avatarIndex>=0) {
-   const blank="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+   const blank="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACAUwAOw==";
    if(state.img.getAttribute("src")!==blank)state.img.setAttribute("src",blank);
    const directions=["down","up","left","right"];
    const directionIndex=Math.max(0,directions.indexOf(state.direction));
    state.img.style.backgroundImage='url("assets/avatars/approved-explorers-atlas.svg")';
    state.img.style.backgroundRepeat="no-repeat";
-   state.img.style.backgroundSize="348px 350px";
-   state.img.style.backgroundPosition=(-avatarIndex*58)+"px "+(-(directionIndex+1)*70)+"px";
+   state.img.style.backgroundSize="300px 310px";
+   state.img.style.backgroundPosition=(-avatarIndex*50)+"px "+(-(directionIndex+1)*62)+"px";
   } else {
    state.img.style.backgroundImage="";
    const src="assets/player/petara-"+state.direction+"-"+frame+".png";
@@ -72,7 +72,7 @@ function drawPlayers(snapshot,uid){
    label.style.cssText="position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#152631e8;color:white;border:2px solid #fff7;border-radius:8px;padding:3px 8px;white-space:nowrap;font:bold 12px sans-serif";
    el.append(label);
    const img=document.createElement("img");
-   img.style.cssText="position:absolute;left:0;bottom:0;width:58px;height:70px;object-fit:contain";
+   img.style.cssText="position:absolute;left:0;bottom:0;width:50px;height:62px;object-fit:contain;border:0;outline:none";
    img.alt="";
    el.append(img);
    world.append(el);
