@@ -2646,3 +2646,39 @@ button, #dpad, #dpad button {
  .start-card input {padding:9px 12px;}
  .primary-btn {padding:10px 16px;}
 }
+
+
+/* Approved original illustrated explorer avatars (one shared image atlas).
+   Each preview uses the EXACT same character artwork as the map sprite. */
+.avatar-choice .avatar-grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.avatar-choice .avatar-option {padding:8px 4px;min-height:105px;position:relative;overflow:hidden;}
+.avatar-choice .avatar-art {
+  display:block!important;
+  flex:none;
+  min-height:0;
+  width:64px;
+  height:82px;
+  background-image:url("assets/avatars/approved-explorers-atlas.svg");
+  background-repeat:no-repeat;
+  background-size:384px 410px;
+  image-rendering:auto;
+}
+.avatar-choice [data-avatar="boy1"] .avatar-art {background-position:0 0;}
+.avatar-choice [data-avatar="boy2"] .avatar-art {background-position:-64px 0;}
+.avatar-choice [data-avatar="girl1"] .avatar-art {background-position:-128px 0;}
+.avatar-choice [data-avatar="girl2"] .avatar-art {background-position:-192px 0;}
+.avatar-choice [data-avatar="teacherM"] .avatar-art {background-position:-256px 0;}
+.avatar-choice [data-avatar="teacherF"] .avatar-art {background-position:-320px 0;}
+.avatar-choice .avatar-option.selected::after {top:4px;right:6px;}
+#playerSprite {image-rendering:auto;}
+@media(max-width:420px), (max-height:690px) {
+ .avatar-choice .avatar-grid {gap:5px;}
+ .avatar-choice .avatar-option {min-height:81px;padding:5px 2px;}
+ .avatar-choice .avatar-art {width:52px;height:67px;background-size:312px 335px;}
+ .avatar-choice [data-avatar="boy1"] .avatar-art {background-position:0 0;}
+ .avatar-choice [data-avatar="boy2"] .avatar-art {background-position:-52px 0;}
+ .avatar-choice [data-avatar="girl1"] .avatar-art {background-position:-104px 0;}
+ .avatar-choice [data-avatar="girl2"] .avatar-art {background-position:-156px 0;}
+ .avatar-choice [data-avatar="teacherM"] .avatar-art {background-position:-208px 0;}
+ .avatar-choice [data-avatar="teacherF"] .avatar-art {background-position:-260px 0;}
+}
