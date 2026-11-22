@@ -251,12 +251,12 @@
 
   <div class="modal-card activity-card">
 
-    <button id="missionHomeBtn" class="mission-home-btn" type="button" aria-label="Kembali ke halaman utama" title="Halaman utama">🏠</button>
+    <button id="missionHomeBtn" class="mission-home-btn" type="button" aria-label="Kembali ke peta" title="Kembali ke peta">🏠</button>
 
     <button
       id="closeModal"
       class="close-btn"
-      aria-label="Tutup"
+      aria-label="Kembali ke peta"
     >
       ×
     </button>
@@ -275,18 +275,6 @@
 
 </div>
 
-
-<div id="missionHomeConfirm" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="missionHomeTitle">
-  <div class="modal-card mission-home-confirm-card">
-    <div class="mission-home-confirm-icon">⌂</div>
-    <h2 id="missionHomeTitle">Kembali ke peta?</h2>
-    <p>Kemajuan kamu disimpan. Masuk semula ke misi untuk sambung soalan terakhir.</p>
-    <div class="mission-home-confirm-actions">
-      <button id="missionHomeCancel" type="button" class="mission-home-cancel">BATAL</button>
-      <button id="missionHomeYes" type="button" class="mission-home-yes">YA, KELUAR</button>
-    </div>
-  </div>
-</div>
 
 <div
   id="resultModal"
@@ -351,7 +339,7 @@
 
 
 <script type="module">import {joinMultiplayer,leaveMultiplayer} from "./multiplayer.js?v=20261122-presence-fix1"; window.__kspJoinMultiplayer=joinMultiplayer; window.__kspLeaveMultiplayer=leaveMultiplayer;</script>
-<script src="script.js?v=20261123-ios-mic-session-fix1"></script>
+<script src="script.js?v=20261123-mission-map-exits1"></script>
 
 </body>
 </html>
