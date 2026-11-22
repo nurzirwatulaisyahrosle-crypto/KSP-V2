@@ -2713,3 +2713,66 @@ button, #dpad, #dpad button {
   background-color:transparent !important;
 }
 #player, .remote-player {outline:0 !important; border:0 !important; background:transparent !important;}
+
+
+/* Home-screen-only star field and subtle creator signature. */
+#startScreen.start-screen {
+  position: relative;
+  isolation: isolate;
+}
+#startScreen.start-screen::before {
+  /* Remove former hill-like overshadow layer without changing the night palette. */
+  display: none !important;
+}
+#startScreen .night-moon,
+#startScreen .night-castle,
+#startScreen .night-tree,
+#startScreen .start-decor {
+  display: none !important;
+}
+#startScreen .night-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .61;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.92) 1.3px, transparent 1.7px),
+    radial-gradient(circle, rgba(255,239,190,.88) 1.1px, transparent 1.6px),
+    radial-gradient(circle, rgba(198,222,255,.9) 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(255,255,255,.72) 1.8px, transparent 2.4px),
+    radial-gradient(circle, rgba(255,251,228,.78) 1px, transparent 1.5px);
+  background-size: 81px 89px, 133px 127px, 163px 159px, 211px 197px, 109px 137px;
+  background-position: 8px 14px, 37px 72px, 83px 29px, 117px 103px, 52px 11px;
+  animation: nightTwinkle 5.5s ease-in-out infinite alternate;
+}
+#startScreen .start-card {
+  position: relative;
+  z-index: 5;
+}
+#startScreen .start-credit {
+  position: absolute;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  left: max(14px, env(safe-area-inset-left, 0px));
+  z-index: 6;
+  pointer-events: none;
+  max-width: calc(100% - 28px);
+  font: 700 clamp(12px, 2vw, 14px)/1.3 "Comic Sans MS", "Comic Sans", cursive;
+  letter-spacing: .35px;
+  color: rgba(241,245,255,.76);
+  text-shadow: 0 1px 4px rgba(2,13,40,.85);
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  #startScreen .start-credit {
+    bottom: max(9px, env(safe-area-inset-bottom, 0px));
+    left: max(12px, env(safe-area-inset-left, 0px));
+    font-size: 12px;
+  }
+  #startScreen .start-card {
+    max-height: calc(100dvh - 50px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #startScreen .night-stars { animation: none; }
+}
