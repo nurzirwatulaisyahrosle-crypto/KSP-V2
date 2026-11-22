@@ -212,15 +212,19 @@ document.querySelectorAll(".avatar-option").forEach(button =>
   button.addEventListener("click", () => chooseAvatar(button.dataset.avatar))
 );
 const APPROVED_AVATAR_ATLAS = "assets/avatars/approved-explorers-atlas.svg";
-const BLANK_AVATAR_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+const BLANK_AVATAR_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACAUwAOw==";
 const AVATAR_DIRECTIONS = ["down", "up", "left", "right"];
 function applyAvatarArtwork(img, avatar, direction = "down", portrait = false) {
   const col = AVATAR_IDS.indexOf(avatar);
   if (!img || col < 0) return;
   const row = portrait ? 0 : Math.max(0, AVATAR_DIRECTIONS.indexOf(direction)) + 1;
-  const w = portrait ? 38 : 58;
-  const h = portrait ? 42 : 70;
+  const w = portrait ? 36 : 50;
+  const h = portrait ? 42 : 62;
   if (img.getAttribute("src") !== BLANK_AVATAR_PIXEL) img.setAttribute("src", BLANK_AVATAR_PIXEL);
+  img.alt = "";
+  img.draggable = false;
+  img.style.border = "0";
+  img.style.outline = "none";
   img.style.backgroundImage = 'url("' + APPROVED_AVATAR_ATLAS + '")';
   img.style.backgroundRepeat = "no-repeat";
   img.style.backgroundSize = (w * 6) + "px " + (h * 5) + "px";
