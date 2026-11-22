@@ -2682,3 +2682,34 @@ button, #dpad, #dpad button {
  .avatar-choice [data-avatar="teacherM"] .avatar-art {background-position:-208px 0;}
  .avatar-choice [data-avatar="teacherF"] .avatar-art {background-position:-260px 0;}
 }
+
+/* Avatar hotfix: no broken-image outline, pixel-perfect atlas cropping. */
+#playerSprite {
+  width:50px !important;
+  height:62px !important;
+  object-fit:fill !important;
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background-color:transparent !important;
+  background-clip:padding-box;
+  image-rendering:auto;
+  -webkit-user-drag:none;
+  user-select:none;
+}
+#hud .hud-player img {
+  width:36px !important;
+  height:42px !important;
+  object-fit:fill !important;
+  border:0 !important;
+  outline:0 !important;
+}
+.remote-player img {
+  width:50px !important;
+  height:62px !important;
+  object-fit:fill !important;
+  border:0 !important;
+  outline:0 !important;
+  background-color:transparent !important;
+}
+#player, .remote-player {outline:0 !important; border:0 !important; background:transparent !important;}
