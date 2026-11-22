@@ -6,7 +6,17 @@ const config = {apiKey:"AIzaSyB93v_WO_qGHuYN2qeaI0QIoeKT7gdoWj0",authDomain:"kem
 const app=initializeApp(config,"ksp-multiplayer");
 const auth=getAuth(app), db=getDatabase(app);
 let ownRef=null, unsubscribe=null, lastUpdate=0, joined=false;
+let ownUid=null, latestPlayers={}, refreshTimer=null, pendingLeave=null, sessionInfo=null;
+const PRESENCE_TIMEOUT_MS=35000;
 const others=new Map();
+function isActivePlayer(p){
+ const last=Number(p && p.updatedAt);
+ return !!p && typeof p.name==="string" && Number.isFinite(last) &&
+   last>0 && Date.now()-last<PRESENCE_TIMEOUT_MS && last-Date.now()<15000;
+}
+function activePlayers(players){
+ return Object.fromEntries(Object.entries(players||{}).filter(([,p])=>isActivePlayer(p)));
+}
 function showStatus(message){
  let el=document.getElementById("multiplayerStatus");
  if(!el){
@@ -56,7 +66,9 @@ function animateRemotePlayers(time){
  animationId=requestAnimationFrame(animateRemotePlayers);
 }
 function drawPlayers(snapshot,uid){
- const players=snapshot.val()||{};
+ latestPlayers=snapshot.val()||{};
+ // Old database records and disconnected devices must not appear as live players.
+ const players=activePlayers(latestPlayers);
  const world=document.getElementById("world");
  if(!world)return;
  for(const [id,p] of Object.entries(players)){
@@ -93,18 +105,26 @@ function drawPlayers(snapshot,uid){
  showStatus("👥 "+Object.keys(players).length+"/30 PEMAIN");
 }
 export async function joinMultiplayer(name, getPosition, selectedAvatar){
+ sessionInfo={name,getPosition,selectedAvatar};
  const avatar=["boy1","boy2","girl1","girl2","teacherM","teacherF"].includes(selectedAvatar)?selectedAvatar:"boy1";
- if(joined)return;
+ if(joined || document.hidden)return;
  try{
   const user=(await signInAnonymously(auth)).user;
+  if(document.hidden)return;
   const playersRef=ref(db,"rooms/kelas/players");
   const current=await new Promise((resolve,reject)=>onValue(playersRef,s=>resolve(s.val()||{}),reject,{onlyOnce:true}));
-  if(Object.keys(current).length>=30&&!current[user.uid]){showStatus("Bilik penuh (30 pemain)");return;}
+  if(document.hidden)return;
+  if(Object.keys(activePlayers(current)).length>=30&&!activePlayers(current)[user.uid]){showStatus("Bilik penuh (30 pemain)");return;}
   ownRef=ref(db,"rooms/kelas/players/"+user.uid);
+  ownUid=user.uid;
+  // Firebase removes our record when the network connection actually disconnects.
   await onDisconnect(ownRef).remove();
+  if(document.hidden){await leaveMultiplayer();return;}
   unsubscribe=onValue(playersRef,s=>drawPlayers(s,user.uid),()=>showStatus("Sambungan multiplayer terganggu"));
   joined=true;
-  const update=async()=>{if(!joined)return;const p=getPosition();if(!p)return;const now=Date.now();if(now-lastUpdate<180)return;lastUpdate=now;
+  if(refreshTimer)clearInterval(refreshTimer);
+  refreshTimer=setInterval(()=>drawPlayers({val:()=>latestPlayers},ownUid),5000);
+  const update=async()=>{if(!joined || document.hidden)return;const p=getPosition();if(!p)return;const now=Date.now();if(now-lastUpdate<180)return;lastUpdate=now;
    try{
     await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",avatar,updatedAt:serverTimestamp()});
    }catch(e){
@@ -117,4 +137,39 @@ export async function joinMultiplayer(name, getPosition, selectedAvatar){
   window.__kspMultiplayerUpdate=update;await update();
  }catch(e){showStatus("Multiplayer belum tersedia");}
 }
-export async function leaveMultiplayer(){joined=false;unsubscribe?.();unsubscribe=null;window.__kspMultiplayerUpdate=null;if(ownRef){try{await set(ownRef,null)}catch(e){}ownRef=null;}for(const state of others.values())state.el.remove();others.clear();if(animationId)cancelAnimationFrame(animationId);animationId=0;animationTime=0;}
+export async function leaveMultiplayer(){
+ joined=false;
+ unsubscribe?.();unsubscribe=null;
+ window.__kspMultiplayerUpdate=null;
+ if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;}
+ const departing=ownRef;
+ ownRef=null;ownUid=null;latestPlayers={};
+ for(const state of others.values())state.el.remove();
+ others.clear();
+ if(animationId)cancelAnimationFrame(animationId);
+ animationId=0;animationTime=0;
+ if(departing){
+  try { await set(departing,null); }
+  catch(e) { /* onDisconnect removes it when Firebase detects the lost connection */ }
+ }
+}
+
+// On an ordinary tab/app switch, remove only this player's avatar.
+// Rejoin when this same game tab becomes visible again.
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden){
+  pendingLeave=leaveMultiplayer();
+ }else if(sessionInfo){
+  Promise.resolve(pendingLeave).then(()=>{
+   if(!document.hidden && sessionInfo)joinMultiplayer(sessionInfo.name,sessionInfo.getPosition,sessionInfo.selectedAvatar);
+  });
+ }
+});
+window.addEventListener("pagehide",()=>{ pendingLeave=leaveMultiplayer(); });
+window.addEventListener("pageshow",()=>{
+ if(!document.hidden && sessionInfo && !joined){
+  Promise.resolve(pendingLeave).then(()=>{
+   if(!document.hidden && sessionInfo && !joined)joinMultiplayer(sessionInfo.name,sessionInfo.getPosition,sessionInfo.selectedAvatar);
+  });
+ }
+});
