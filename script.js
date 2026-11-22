@@ -734,45 +734,16 @@ function interact() {
 }
 
 // =====================================================
-// CLOSE CHECKPOINT
+// LEAVE MISSION TO MAP: HOME, X OR OUTSIDE THE MISSION CARD
+// Keep current unanswered question and progress until page refresh/close.
 // =====================================================
-
-document
-  .querySelector("#closeModal")
-  .addEventListener("click", () => {
-    stopSpeech();
-    stopRecognition(true);
-
-    // X means a completely fresh game, unlike HOME which returns to the map.
-    currentSessionProgress = null;
-    missionNavigationToken++;
-    game.modalCheckpoint = null;
-    modal.classList.add("hidden");
-    petaraMusic.mission(false);
-    location.reload();
-  });
-
-// HOME within each mission: confirm before restarting the adventure.
-const missionHomeConfirm = document.querySelector("#missionHomeConfirm");
-const missionHomeBtn = document.querySelector("#missionHomeBtn");
-const missionHomeCancel = document.querySelector("#missionHomeCancel");
-const missionHomeYes = document.querySelector("#missionHomeYes");
-missionHomeBtn.addEventListener("click", () => {
+function returnMissionToMap() {
   if (game.modalCheckpoint == null) return;
-  missionHomeConfirm.classList.remove("hidden");
-  missionHomeCancel.focus();
-});
-missionHomeCancel.addEventListener("click", () => {
-  missionHomeConfirm.classList.add("hidden");
-  missionHomeBtn.focus();
-});
-missionHomeYes.addEventListener("click", () => {
-  // HOME returns to the map without restarting or changing the saved question.
   stopSpeech();
   stopRecognition(true);
-  missionNavigationToken++; // cancel pending question-transition callbacks
-  // If HOME is pressed during the final-answer celebration, apply the
-  // completed mission immediately so the next mission is unlocked on the map.
+  missionNavigationToken++; // ignore delayed success/voice callbacks from this mission
+  // If the final answer was accepted during the celebration delay,
+  // finish applying the stored result before returning to the map.
   const saved = readSavedProgress(game.studentName);
   if (saved && saved.mission !== game.modalCheckpoint &&
       Array.isArray(saved.completed)) {
@@ -783,13 +754,20 @@ missionHomeYes.addEventListener("click", () => {
     refreshCheckpointGraphics();
   }
   game.modalCheckpoint = null;
-  missionHomeConfirm.classList.add("hidden");
   modal.classList.add("hidden");
   petaraMusic.mission(false);
   keys.clear();
   interaction.classList.add("hidden");
   interactBtn.classList.add("hidden");
   handleInteraction();
+}
+
+document.querySelector("#closeModal").addEventListener("click", returnMissionToMap);
+document.querySelector("#missionHomeBtn").addEventListener("click", returnMissionToMap);
+// Only tapping the backdrop outside the mission card exits;
+// touches on question controls, answers, audio and RAKAM must not exit.
+modal.addEventListener("click", event => {
+  if (event.target === modal) returnMissionToMap();
 });
 
 // =====================================================
