@@ -806,7 +806,8 @@ missionHomeYes.addEventListener("click", () => {
   if (typeof micTestRecognition !== "undefined" && micTestRecognition) {
     try { micTestRecognition.stop(); } catch (e) {}
   }
-  saveGameProgress(game.modalCheckpoint, activityIndex);
+  // Kemajuan telah disimpan ketika soalan dibuka atau dijawab.
+  // Jangan timpa soalan seterusnya jika HOME ditekan semasa animasi kejayaan.
   game.modalCheckpoint = null;
   missionHomeConfirm.classList.add("hidden");
   modal.classList.add("hidden");
