@@ -35,7 +35,8 @@ function animateRemotePlayers(time){
   state.el.style.top=state.y+"px";
   const moving=Math.abs(state.targetX-state.x)>0.4||Math.abs(state.targetY-state.y)>0.4||time-state.lastMotion<230;
   const frame=moving?1+Math.floor(time/145)%4:1;
-  const src="assets/player/petara-"+state.direction+"-"+frame+".png";
+  const src=state.avatar ? "assets/avatars/"+state.avatar+"-"+state.direction+".svg" : "assets/player/petara-"+state.direction+"-"+frame+".png";
+  state.img.style.transform=state.avatar && moving ? "translateY("+(frame%2?-2:0)+"px)" : "";
   if(state.img.getAttribute("src")!==src)state.img.src=src;
  }
  animationId=requestAnimationFrame(animateRemotePlayers);
@@ -66,6 +67,7 @@ function drawPlayers(snapshot,uid){
   }
   state.el.firstChild.textContent=p.name.slice(0,24);
   state.direction=["up","down","left","right"].includes(p.direction)?p.direction:"down";
+  state.avatar=["boy1","boy2","girl1","girl2","teacherM","teacherF"].includes(p.avatar)?p.avatar:"";
   if(state.targetX!==x||state.targetY!==y)state.lastMotion=performance.now();
   state.targetX=x;
   state.targetY=y;
@@ -76,7 +78,8 @@ function drawPlayers(snapshot,uid){
  if(!animationId)animationId=requestAnimationFrame(animateRemotePlayers);
  showStatus("👥 "+Object.keys(players).length+"/30 PEMAIN");
 }
-export async function joinMultiplayer(name, getPosition){
+export async function joinMultiplayer(name, getPosition, selectedAvatar){
+ const avatar=["boy1","boy2","girl1","girl2","teacherM","teacherF"].includes(selectedAvatar)?selectedAvatar:"boy1";
  if(joined)return;
  try{
   const user=(await signInAnonymously(auth)).user;
@@ -88,7 +91,7 @@ export async function joinMultiplayer(name, getPosition){
   unsubscribe=onValue(playersRef,s=>drawPlayers(s,user.uid),()=>showStatus("Sambungan multiplayer terganggu"));
   joined=true;
   const update=async()=>{if(!joined)return;const p=getPosition();if(!p)return;const now=Date.now();if(now-lastUpdate<180)return;lastUpdate=now;
-   try{await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",updatedAt:serverTimestamp()});}catch(e){showStatus("Multiplayer belum tersedia");}
+   try{await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",avatar,updatedAt:serverTimestamp()});}catch(e){showStatus("Multiplayer belum tersedia");}
   };
   window.__kspMultiplayerUpdate=update;await update();
  }catch(e){showStatus("Multiplayer belum tersedia");}
