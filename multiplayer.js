@@ -1,13 +1,19 @@
 /* KSP-V2 multiplayer integration. Load only after RTDB security rules are deployed. */
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getAuth, signInAnonymously} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {getDatabase, ref, set, onValue, onDisconnect, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import {getDatabase, ref, set, onValue, onChildAdded, onChildChanged, onChildRemoved, onDisconnect, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 const config = {apiKey:"AIzaSyB93v_WO_qGHuYN2qeaI0QIoeKT7gdoWj0",authDomain:"kembara-si-petara.firebaseapp.com",databaseURL:"https://kembara-si-petara-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"kembara-si-petara",appId:"1:516080734737:web:61492c4996f241dedf57b0"};
 const app=initializeApp(config,"ksp-multiplayer");
 const auth=getAuth(app), db=getDatabase(app);
-let ownRef=null, unsubscribe=null, lastUpdate=0, joined=false;
+let ownRef=null, unsubscribe=[], lastUpdate=0, lastPosition=null, joined=false;
 let ownUid=null, latestPlayers={}, refreshTimer=null, pendingLeave=null, sessionInfo=null;
+let lastMapDraw=0, lastPositionSend=0;
+const MAX_PLAYERS=100;
+const AVATAR_VISIBILITY_RADIUS=250;
 const PRESENCE_TIMEOUT_MS=35000;
+const POSITION_UPDATE_MS=1000;
+const POSITION_CHANGE_UNITS=7;
+const HEARTBEAT_MS=12000;
 const others=new Map();
 function isActivePlayer(p){
  const last=Number(p && p.updatedAt);
@@ -71,8 +77,13 @@ function drawPlayers(snapshot,uid){
  const players=activePlayers(latestPlayers);
  const world=document.getElementById("world");
  if(!world)return;
+ const localPosition=sessionInfo?.getPosition?.();
+ const ownX=Number(localPosition?.x), ownY=Number(localPosition?.y);
+ const hasPosition=Number.isFinite(ownX)&&Number.isFinite(ownY);
  for(const [id,p] of Object.entries(players)){
   if(id===uid||!p||typeof p.name!=="string")continue;
+  // Render only nearby avatars; remote players still count towards the Live total.
+  if(!hasPosition || Math.hypot(Number(p.x)-ownX,Number(p.y)-ownY)>AVATAR_VISIBILITY_RADIUS)continue;
   const x=Math.max(0,Math.min(1600,Number(p.x)||0));
   const y=Math.max(0,Math.min(900,Number(p.y)||0));
   let state=others.get(id);
@@ -102,7 +113,7 @@ function drawPlayers(snapshot,uid){
   if(!players[id]){state.el.remove();others.delete(id);}
  }
  if(!animationId)animationId=requestAnimationFrame(animateRemotePlayers);
- showStatus("👥 "+Object.keys(players).length+"/30 PEMAIN");
+ showStatus("👥 "+Object.keys(players).length+"/"+MAX_PLAYERS+" PEMAIN");
 }
 export async function joinMultiplayer(name, getPosition, selectedAvatar){
  sessionInfo={name,getPosition,selectedAvatar};
@@ -114,24 +125,48 @@ export async function joinMultiplayer(name, getPosition, selectedAvatar){
   const playersRef=ref(db,"rooms/kelas/players");
   const current=await new Promise((resolve,reject)=>onValue(playersRef,s=>resolve(s.val()||{}),reject,{onlyOnce:true}));
   if(document.hidden)return;
-  if(Object.keys(activePlayers(current)).length>=30&&!activePlayers(current)[user.uid]){showStatus("Bilik penuh (30 pemain)");return;}
+  if(Object.keys(activePlayers(current)).length>=MAX_PLAYERS&&!activePlayers(current)[user.uid]){showStatus("Bilik penuh ("+MAX_PLAYERS+" pemain)");return;}
   ownRef=ref(db,"rooms/kelas/players/"+user.uid);
   ownUid=user.uid;
   // Firebase removes our record when the network connection actually disconnects.
   await onDisconnect(ownRef).remove();
   if(document.hidden){await leaveMultiplayer();return;}
-  unsubscribe=onValue(playersRef,s=>drawPlayers(s,user.uid),()=>showStatus("Sambungan multiplayer terganggu"));
+  // Child listeners receive only the changed player, not the entire 100-player room.
+  // Use one animation frame to coalesce bursts of join/move/leave updates.
+  let queued=false;
+  const requestDraw=()=>{
+   if(queued)return;
+   queued=true;
+   requestAnimationFrame(()=>{queued=false;if(joined)drawPlayers({val:()=>latestPlayers},user.uid);});
+  };
+  const connectionError=()=>showStatus("Sambungan multiplayer terganggu");
+  unsubscribe=[
+   onChildAdded(playersRef,s=>{latestPlayers[s.key]=s.val();requestDraw();},connectionError),
+   onChildChanged(playersRef,s=>{latestPlayers[s.key]=s.val();requestDraw();},connectionError),
+   onChildRemoved(playersRef,s=>{delete latestPlayers[s.key];requestDraw();},connectionError)
+  ];
   joined=true;
   if(refreshTimer)clearInterval(refreshTimer);
-  refreshTimer=setInterval(()=>drawPlayers({val:()=>latestPlayers},ownUid),5000);
-  const update=async()=>{if(!joined || document.hidden)return;const p=getPosition();if(!p)return;const now=Date.now();if(now-lastUpdate<180)return;lastUpdate=now;
+  refreshTimer=setInterval(()=>drawPlayers({val:()=>latestPlayers},ownUid),3000);
+  const update=async()=>{
+   if(!joined || document.hidden)return;
+   const p=getPosition();if(!p)return;
+   const now=Date.now();
+   // Update nearby-avatar visibility even without sending data to Firebase.
+   if(now-lastMapDraw>=250){lastMapDraw=now;requestDraw();}
+   if(now-lastPositionSend<POSITION_UPDATE_MS)return;
+   const x=Math.round(Number(p.x)||0),y=Math.round(Number(p.y)||0);
+   const direction=p.direction||"down";
+   const moved=!lastPosition || Math.hypot(x-lastPosition.x,y-lastPosition.y)>=POSITION_CHANGE_UNITS ||
+     direction!==lastPosition.direction;
+   if(!moved && now-lastUpdate<HEARTBEAT_MS)return;
+   lastPositionSend=now;lastUpdate=now;lastPosition={x,y,direction};
    try{
-    await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",avatar,updatedAt:serverTimestamp()});
+    await set(ownRef,{name:String(name).slice(0,24),x,y,direction,avatar,updatedAt:serverTimestamp()});
    }catch(e){
-    // Compatibility: older RTDB rules may not yet permit the new avatar field.
-    // Keep existing multiplayer working until the avatar rule is deployed.
-    try{await set(ownRef,{name:String(name).slice(0,24),x:Math.round(p.x),y:Math.round(p.y),direction:p.direction||"down",updatedAt:serverTimestamp()});}
-    catch(error){showStatus("Multiplayer belum tersedia");}
+    // Support existing deployed RTDB rules until avatar validation is updated.
+    try{await set(ownRef,{name:String(name).slice(0,24),x,y,direction,updatedAt:serverTimestamp()});}
+    catch(error){showStatus("Multiplayer belum tersedia atau bilik penuh");}
    }
   };
   window.__kspMultiplayerUpdate=update;await update();
@@ -139,11 +174,11 @@ export async function joinMultiplayer(name, getPosition, selectedAvatar){
 }
 export async function leaveMultiplayer(){
  joined=false;
- unsubscribe?.();unsubscribe=null;
+ for(const stop of unsubscribe)stop();unsubscribe=[];
  window.__kspMultiplayerUpdate=null;
  if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;}
  const departing=ownRef;
- ownRef=null;ownUid=null;latestPlayers={};
+ ownRef=null;ownUid=null;latestPlayers={};lastPosition=null;lastUpdate=0;lastPositionSend=0;
  for(const state of others.values())state.el.remove();
  others.clear();
  if(animationId)cancelAnimationFrame(animationId);
