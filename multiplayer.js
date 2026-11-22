@@ -7,22 +7,74 @@ const app=initializeApp(config,"ksp-multiplayer");
 const auth=getAuth(app), db=getDatabase(app);
 let ownRef=null, unsubscribe=null, lastUpdate=0, joined=false;
 const others=new Map();
-function showStatus(message){let el=document.getElementById("multiplayerStatus");if(!el){el=document.createElement("div");el.id="multiplayerStatus";el.style.cssText="position:absolute;top:8px;right:10px;z-index:100;color:white;background:#152631dd;padding:5px 10px;border-radius:9px;font:700 12px sans-serif";document.querySelector("#gameScreen")?.append(el);}el.textContent=message;}
+function showStatus(message){
+ let el=document.getElementById("multiplayerStatus");
+ if(!el){
+  el=document.createElement("div");
+  el.id="multiplayerStatus";
+  el.setAttribute("role","status");
+  el.setAttribute("aria-live","polite");
+  // Keep player count visible BELOW the HUD on both desktop and mobile.
+  el.style.cssText="position:absolute;top:76px;left:50%;transform:translateX(-50%);z-index:155;color:#fff;background:#09283df2;border:2px solid #6ba6b5;box-shadow:0 3px 8px #0006;padding:7px 12px;border-radius:12px;font:800 13px sans-serif;white-space:nowrap;pointer-events:none;text-align:center";
+  document.querySelector("#worldViewport")?.append(el);
+ }
+ el.textContent=message;
+}
+// Render remote players between Firebase updates instead of jumping to each new position.
+let animationId=0, animationTime=0;
+function animateRemotePlayers(time){
+ const dt=Math.min(80,Math.max(0,time-(animationTime||time)));
+ animationTime=time;
+ const alpha=1-Math.exp(-dt/95);
+ for(const state of others.values()){
+  state.x+=(state.targetX-state.x)*alpha;
+  state.y+=(state.targetY-state.y)*alpha;
+  if(Math.abs(state.targetX-state.x)<0.3)state.x=state.targetX;
+  if(Math.abs(state.targetY-state.y)<0.3)state.y=state.targetY;
+  state.el.style.left=state.x+"px";
+  state.el.style.top=state.y+"px";
+  const moving=Math.abs(state.targetX-state.x)>0.4||Math.abs(state.targetY-state.y)>0.4||time-state.lastMotion<230;
+  const frame=moving?1+Math.floor(time/145)%4:1;
+  const src="assets/player/petara-"+state.direction+"-"+frame+".png";
+  if(state.img.getAttribute("src")!==src)state.img.src=src;
+ }
+ animationId=requestAnimationFrame(animateRemotePlayers);
+}
 function drawPlayers(snapshot,uid){
- const players=snapshot.val()||{}; const world=document.getElementById("world");if(!world)return;
+ const players=snapshot.val()||{};
+ const world=document.getElementById("world");
+ if(!world)return;
  for(const [id,p] of Object.entries(players)){
   if(id===uid||!p||typeof p.name!=="string")continue;
-  let el=others.get(id);
-  if(!el){el=document.createElement("div");el.className="remote-player";el.style.cssText="position:absolute;width:58px;height:76px;transform:translate(-50%,-76%);pointer-events:none;z-index:29;text-align:center";
-    const label=document.createElement("div");label.style.cssText="position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#152631e8;color:white;border:2px solid #fff7;border-radius:8px;padding:3px 8px;white-space:nowrap;font:bold 12px sans-serif";el.append(label);
-    const sprite=document.createElement("img");sprite.style.cssText="position:absolute;left:0;bottom:0;width:58px;height:70px;object-fit:contain";el.append(sprite);world.append(el);others.set(id,el);
+  const x=Math.max(0,Math.min(1600,Number(p.x)||0));
+  const y=Math.max(0,Math.min(900,Number(p.y)||0));
+  let state=others.get(id);
+  if(!state){
+   const el=document.createElement("div");
+   el.className="remote-player";
+   el.style.cssText="position:absolute;width:58px;height:76px;transform:translate(-50%,-76%);pointer-events:none;z-index:29;text-align:center;will-change:left,top";
+   const label=document.createElement("div");
+   label.style.cssText="position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#152631e8;color:white;border:2px solid #fff7;border-radius:8px;padding:3px 8px;white-space:nowrap;font:bold 12px sans-serif";
+   el.append(label);
+   const img=document.createElement("img");
+   img.style.cssText="position:absolute;left:0;bottom:0;width:58px;height:70px;object-fit:contain";
+   img.alt="";
+   el.append(img);
+   world.append(el);
+   state={el,img,x,y,targetX:x,targetY:y,direction:"down",lastMotion:0};
+   others.set(id,state);
   }
-  el.firstChild.textContent=p.name.slice(0,24);
-  const spriteUrl="assets/player/petara-"+(["up","down","left","right"].includes(p.direction)?p.direction:"down")+"-1.png";if(el.lastChild.getAttribute("src")!==spriteUrl)el.lastChild.src=spriteUrl;
-  el.style.left=Math.max(0,Math.min(1600,Number(p.x)||0))+"px";el.style.top=Math.max(0,Math.min(900,Number(p.y)||0))+"px";
+  state.el.firstChild.textContent=p.name.slice(0,24);
+  state.direction=["up","down","left","right"].includes(p.direction)?p.direction:"down";
+  if(state.targetX!==x||state.targetY!==y)state.lastMotion=performance.now();
+  state.targetX=x;
+  state.targetY=y;
  }
- for(const [id,el] of others){if(!players[id]){el.remove();others.delete(id);}}
- showStatus("👥 "+Object.keys(players).length+"/30 pemain");
+ for(const [id,state] of others){
+  if(!players[id]){state.el.remove();others.delete(id);}
+ }
+ if(!animationId)animationId=requestAnimationFrame(animateRemotePlayers);
+ showStatus("👥 "+Object.keys(players).length+"/30 PEMAIN");
 }
 export async function joinMultiplayer(name, getPosition){
  if(joined)return;
@@ -41,4 +93,4 @@ export async function joinMultiplayer(name, getPosition){
   window.__kspMultiplayerUpdate=update;await update();
  }catch(e){showStatus("Multiplayer belum tersedia");}
 }
-export async function leaveMultiplayer(){joined=false;unsubscribe?.();unsubscribe=null;window.__kspMultiplayerUpdate=null;if(ownRef){try{await set(ownRef,null)}catch(e){}ownRef=null;}for(const el of others.values())el.remove();others.clear();}
+export async function leaveMultiplayer(){joined=false;unsubscribe?.();unsubscribe=null;window.__kspMultiplayerUpdate=null;if(ownRef){try{await set(ownRef,null)}catch(e){}ownRef=null;}for(const state of others.values())state.el.remove();others.clear();if(animationId)cancelAnimationFrame(animationId);animationId=0;animationTime=0;}
