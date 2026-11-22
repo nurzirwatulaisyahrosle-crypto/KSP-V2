@@ -2614,3 +2614,19 @@ button, #dpad, #dpad button {
 @media (prefers-reduced-motion: reduce) {
   #gameScreen #interactBtn.interact-btn:not(.hidden) { animation: none !important; transform: translate(-50%, -50%) !important; }
 }
+
+
+/* KSP-V2: Choose the same character on the start screen and in the world. */
+.avatar-choice {width:100%;margin:12px auto 10px;text-align:center;}
+.avatar-choice-title {font-weight:900;color:#fceab3;margin:0 0 9px;text-shadow:0 2px 2px #102941;}
+.avatar-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;width:100%;}
+.avatar-option {min-width:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;padding:6px 3px;border:3px solid #9ac6dc;border-radius:12px;background:#f5eed9;color:#213e55;cursor:pointer;box-shadow:0 3px 0 #183955;transition:transform .12s,border-color .12s,background .12s;}
+.avatar-option img {display:block;width:44px;height:54px;object-fit:contain;image-rendering:pixelated;}
+.avatar-option span {font:800 10px/1.2 sans-serif;min-height:24px;display:flex;align-items:center;justify-content:center;text-align:center;}
+.avatar-option.selected,.avatar-option[aria-pressed="true"] {border-color:#f4bd37;background:#fff5bf;box-shadow:0 0 0 2px #fff1b0,0 3px 0 #8e641e;transform:translateY(-1px);}
+.avatar-option:focus-visible {outline:3px solid #fff;outline-offset:3px;}
+.avatar-option.selected::after{content:"✓";color:#167e50;font-weight:900;position:absolute;align-self:flex-end;margin-right:5px;margin-top:-62px;}
+#avatarError {margin:5px 0 0;font-size:12px;}
+#playerSprite.avatar-walking {animation:kspAvatarWalk .26s ease-in-out infinite alternate;image-rendering:pixelated;}
+@keyframes kspAvatarWalk {from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-3px)}}
+@media(max-width:420px){.avatar-grid{gap:5px}.avatar-option img{width:37px;height:46px}.avatar-option span{font-size:9px;min-height:23px}.avatar-option{padding:4px 2px}}
