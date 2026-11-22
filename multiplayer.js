@@ -39,7 +39,7 @@ function animateRemotePlayers(time){
   const avatarIndex=avatarIds.indexOf(state.avatar);
   state.img.style.transform=avatarIndex>=0 && moving ? "translateY("+(frame%2?-2:0)+"px)" : "";
   if(avatarIndex>=0) {
-   const blank="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACAUwAOw==";
+   const blank="data:image/gif;base64,R0lGODlhAQABAIEAAAAAAAAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAgEAAEEBAA7";
    if(state.img.getAttribute("src")!==blank)state.img.setAttribute("src",blank);
    const directions=["down","up","left","right"];
    const directionIndex=Math.max(0,directions.indexOf(state.direction));
