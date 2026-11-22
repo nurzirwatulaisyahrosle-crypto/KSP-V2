@@ -2797,7 +2797,18 @@ document
   .querySelector("#homeBtn")
   .addEventListener(
     "click",
-    () => location.reload()
+    () => {
+      // Return directly to the existing map without resetting the player.
+      // Keep the chosen avatar, name, score, completed missions and multiplayer session.
+      stopSuccessCheer();
+      resultModal.classList.add("hidden");
+      startScreen.classList.add("hidden");
+      if (prepScreen) prepScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      updateHUD();
+      resizeWorld();
+      updateCamera();
+    }
   );
 
 
