@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Kembara Si PeTaRa</title>
-  <link rel="stylesheet" href="style.css?v=20261122-pulse2">
+  <link rel="stylesheet" href="style.css?v=20261122-avatar6">
 </head>
 <body>
 
@@ -34,6 +34,19 @@
         class="error"
         aria-live="polite"
       ></p>
+
+      <div class="avatar-choice" role="group" aria-labelledby="avatarChoiceLabel">
+        <p id="avatarChoiceLabel" class="avatar-choice-title">🎭 PILIH AVATAR KAMU</p>
+        <div class="avatar-grid" id="avatarGrid">
+          <button type="button" class="avatar-option" data-avatar="boy1" aria-pressed="false"><img src="assets/avatars/boy1-down.svg" alt=""><span>Lelaki 1</span></button>
+          <button type="button" class="avatar-option" data-avatar="boy2" aria-pressed="false"><img src="assets/avatars/boy2-down.svg" alt=""><span>Lelaki 2</span></button>
+          <button type="button" class="avatar-option" data-avatar="girl1" aria-pressed="false"><img src="assets/avatars/girl1-down.svg" alt=""><span>Perempuan 1</span></button>
+          <button type="button" class="avatar-option" data-avatar="girl2" aria-pressed="false"><img src="assets/avatars/girl2-down.svg" alt=""><span>Perempuan 2</span></button>
+          <button type="button" class="avatar-option" data-avatar="teacherM" aria-pressed="false"><img src="assets/avatars/teacherM-down.svg" alt=""><span>Cikgu Lelaki</span></button>
+          <button type="button" class="avatar-option" data-avatar="teacherF" aria-pressed="false"><img src="assets/avatars/teacherF-down.svg" alt=""><span>Cikgu Perempuan</span></button>
+        </div>
+        <p id="avatarError" class="error" aria-live="polite"></p>
+      </div>
 
       <button
         id="startBtn"
@@ -340,8 +353,8 @@
 </div>
 
 
-<script type="module">import {joinMultiplayer,leaveMultiplayer} from "./multiplayer.js?v=20261122-smooth3"; window.__kspJoinMultiplayer=joinMultiplayer; window.__kspLeaveMultiplayer=leaveMultiplayer;</script>
-<script src="script.js?v=20261122-multiplayer"></script>
+<script type="module">import {joinMultiplayer,leaveMultiplayer} from "./multiplayer.js?v=20261122-avatar6"; window.__kspJoinMultiplayer=joinMultiplayer; window.__kspLeaveMultiplayer=leaveMultiplayer;</script>
+<script src="script.js?v=20261122-avatar6"></script>
 
 </body>
 </html>
