@@ -830,24 +830,24 @@ const CP = {
   3: [
     {
       audio: "assets/audio/cp3-1.m4a",
-      keywords: ["tiga", "3"]
+      requiredGroups: [["tiga", "3"], ["biji"], ["epal"]]
     },
 
     {
       audio: "assets/audio/cp3-2.m4a",
-      keywords: ["biru"]
+      requiredGroups: [["beg"], ["warna", "berwarna"], ["biru"]]
     }
   ],
 
   4: [
     {
       audio: "assets/audio/cp4-1.m4a",
-      any: ["ya", "boleh", "bantu"]
+      responseAction: ["bantu", "membantu", "tolong", "menolong"]
     },
 
     {
       audio: "assets/audio/cp4-2.m4a",
-      any: ["baik", "boleh", "beli"]
+      responseAction: ["beli", "membeli", "belikan", "membelikan", "membelinya", "membelikannya"]
     },
 
     {
@@ -2396,6 +2396,33 @@ function stopRecognition(silent = false) {
 // VOICE RESPONSE EVALUATION
 // =====================================================
 
+
+/* Semakan jawapan lisan baharu hanya untuk Misi 3 S1–S2 dan Misi 4 S1–S2.
+   Padankan perkataan lengkap: "beli" tidak tersalah padan "beliau". */
+function voiceContainsPhrase(spoken, phrase) {
+  const words = norm(spoken).split(" ").filter(Boolean);
+  const target = norm(phrase).split(" ").filter(Boolean);
+  return target.length > 0 && words.some((word, i) =>
+    word === target[0] && target.every((t, j) => words[i + j] === t)
+  );
+}
+function voiceMatchesRequiredGroups(spoken, groups) {
+  return groups.every(group => group.some(word => voiceContainsPhrase(spoken, word)));
+}
+function voiceHasAffirmativeHelpOrPurchase(spoken, actions) {
+  // Jangan terima ayat menolak bantuan atau pembelian.
+  if (["tidak", "tak", "bukan", "jangan", "enggan", "belum", "x"].some(word =>
+    voiceContainsPhrase(spoken, word))) return false;
+  const words = norm(spoken).split(" ").filter(Boolean);
+  // Elakkan jawapan satu atau dua perkataan sahaja.
+  if (words.length < 3) return false;
+  const agreed = ["ya", "boleh", "baik", "sudah tentu"].some(word =>
+    voiceContainsPhrase(spoken, word)) ||
+    ["saya akan", "aku akan", "kami akan"].some(word =>
+      voiceContainsPhrase(spoken, word));
+  return agreed && actions.some(word => voiceContainsPhrase(spoken, word));
+}
+
 function evaluateVoiceResponse(
   d,
   isCP4 = false,
@@ -2449,47 +2476,14 @@ function evaluateVoiceResponse(
     false;
 
 
-  // ===================================================
-  // MISI 3
-  // Salah satu keyword diterima
-  // ===================================================
-
-  if (
-    Array.isArray(
-      d.keywords
-    )
-  ) {
-
-    correct =
-      d.keywords.some(
-        keyword =>
-          spoken.includes(
-            norm(keyword)
-          )
-      );
-
+  // Misi 3 Soalan 1–2: semua kumpulan kata kunci mesti dipenuhi.
+  if (Array.isArray(d.requiredGroups)) {
+    correct = voiceMatchesRequiredGroups(spoken, d.requiredGroups);
   }
 
-
-  // ===================================================
-  // MISI 4
-  // Salah satu respons diterima
-  // ===================================================
-
-  else if (
-    Array.isArray(
-      d.any
-    )
-  ) {
-
-    correct =
-      d.any.some(
-        keyword =>
-          spoken.includes(
-            norm(keyword)
-          )
-      );
-
+  // Misi 4 Soalan 1–2: jawapan mesti menunjukkan persetujuan DAN tindakan.
+  else if (Array.isArray(d.responseAction)) {
+    correct = voiceHasAffirmativeHelpOrPurchase(spoken, d.responseAction);
   }
 
 
