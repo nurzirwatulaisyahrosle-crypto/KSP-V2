@@ -782,6 +782,8 @@ let isRecording = false;
 
 let finalTranscript = "";
 let interimTranscript = "";
+// Keep the last text shown to the learner if Safari revises interim recognition on stop.
+let lastVisibleVoiceTranscript = "";
 
 const CP = {
 
@@ -1824,6 +1826,7 @@ function startRecognition(
   // Reset rakaman
   finalTranscript = "";
   interimTranscript = "";
+  lastVisibleVoiceTranscript = "";
 
   recognitionShouldStop = false;
   recognitionEvaluated = false;
@@ -2027,6 +2030,7 @@ function startRecognition(
 
     if (display) {
 
+      lastVisibleVoiceTranscript = display;
       setTranscript(display);
 
       setStatus(
@@ -2437,8 +2441,19 @@ function evaluateVoiceResponse(
     ).trim();
 
 
-  const spoken =
+  let spoken =
     norm(malayTranscript(raw));
+
+  // Misi 3 Soalan 1 only: Safari may revise its interim result as recording
+  // closes. If the last displayed transcript already has all three required
+  // words, evaluate that same visible answer instead of an incomplete revision.
+  if (game.modalCheckpoint === 3 && activityIndex === 0 &&
+      Array.isArray(d?.requiredGroups) && lastVisibleVoiceTranscript) {
+    const visible = norm(malayTranscript(lastVisibleVoiceTranscript));
+    if (voiceMatchesRequiredGroups(visible, d.requiredGroups)) {
+      spoken = visible;
+    }
+  }
 
 
   // ===================================================
@@ -2468,7 +2483,7 @@ function evaluateVoiceResponse(
 
 
   setTranscript(
-    raw
+    spoken === norm(malayTranscript(raw)) ? raw : lastVisibleVoiceTranscript
   );
 
 
