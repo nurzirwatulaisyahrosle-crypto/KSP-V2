@@ -789,7 +789,7 @@ const CP = {
 
   1: [
     {
-      audio: "assets/audio/cp1-1.m4a",
+      audio: "assets/audio/cp1-1.m4a?v=20261124-newrecording",
       options: ["🍎", "🥕", "🌽"],
       correct: "🥕"
     },
