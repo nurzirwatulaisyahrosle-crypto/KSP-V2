@@ -830,7 +830,7 @@ const CP = {
   3: [
     {
       audio: "assets/audio/cp3-1.m4a",
-      requiredGroups: [["tiga", "3"], ["biji"], ["epal"]]
+      requiredGroups: [["tiga", "3"], ["biji"], ["limau"]]
     },
 
     {
