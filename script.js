@@ -1182,6 +1182,41 @@ function toggleQuestionAudio(src) {
   speak(src);
 }
 
+// Dedicated Web Audio output for boosting only Misi 3 Questions 1–2.
+// HTMLMediaElement.volume is capped at 1; an audio GainNode allows 2× gain.
+let misi3AudioBoostContext = null;
+function boostMisi3Audio(audio, src) {
+  if (!/\bcp3-[12]\.m4a(?:\?|$)/.test(src)) return;
+  const AudioContextType = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextType) return;
+  try {
+    if (!misi3AudioBoostContext || misi3AudioBoostContext.state === "closed") {
+      misi3AudioBoostContext = new AudioContextType();
+    }
+    const context = misi3AudioBoostContext;
+    const source = context.createMediaElementSource(audio);
+    const gain = context.createGain();
+    gain.gain.value = 2.0; // 200% amplification (audio amplitude)
+    // Limit very loud peaks after amplification to reduce distortion.
+    const limiter = context.createDynamicsCompressor();
+    limiter.threshold.value = -5;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.15;
+    source.connect(gain);
+    gain.connect(limiter);
+    limiter.connect(context.destination);
+    audio.__kspDisconnectBoost = () => {
+      try { source.disconnect(); gain.disconnect(); limiter.disconnect(); } catch (e) {}
+    };
+    // Resume from the user's direct DENGAR button gesture on Safari.
+    if (context.state === "suspended") context.resume().catch(() => {});
+  } catch (error) {
+    console.warn("[PeTara] Tidak dapat meningkatkan audio Misi 3", error);
+    // Leave the normal HTML audio path for browsers lacking Web Audio.
+  }
+}
 function speak(src) {
   stopSuccessCheer();
   stopSpeech();
@@ -1192,13 +1227,16 @@ function speak(src) {
   audio.preload = "auto";
   audio.muted = false;
   audio.volume = 1.0;
+  boostMisi3Audio(audio, src);
 
   // Begin playback directly from the button press, not a delayed
   // canplaythrough event which can cause unexpected restarts.
   audio.addEventListener("ended", () => {
+    audio.__kspDisconnectBoost?.();
     if (currentAudio === audio) currentAudio = null;
   }, { once: true });
   audio.addEventListener("error", () => {
+    audio.__kspDisconnectBoost?.();
     if (currentAudio === audio) {
       currentAudio = null;
       fb("Audio tidak dapat dimainkan. Cuba tekan semula.", 0);
@@ -1207,6 +1245,7 @@ function speak(src) {
   const request = audio.play();
   if (request && typeof request.catch === "function") {
     request.catch(() => {
+      audio.__kspDisconnectBoost?.();
       if (currentAudio === audio) {
         currentAudio = null;
         fb("Audio tidak dapat dimainkan. Cuba tekan semula.", 0);
@@ -1220,6 +1259,7 @@ function stopSpeech() {
   const audio = currentAudio;
   currentAudio = null;
   audio.pause();
+  audio.__kspDisconnectBoost?.();
   try { audio.currentTime = 0; } catch (e) {}
 }
 
