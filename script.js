@@ -831,7 +831,7 @@ const CP = {
 
   3: [
     {
-      audio: "assets/audio/cp3-1.m4a",
+      audio: "assets/audio/cp3-1.m4a?v=20261124-newlimau-mimi1",
       requiredGroups: [["tiga", "3"], ["biji"], ["limau"]]
     },
 
