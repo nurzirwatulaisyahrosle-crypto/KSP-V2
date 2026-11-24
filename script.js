@@ -1182,11 +1182,11 @@ function toggleQuestionAudio(src) {
   speak(src);
 }
 
-// Dedicated Web Audio output for boosting only Misi 3 Questions 1–2.
+// Dedicated Web Audio output for boosting Misi 1 Q1 and Misi 3 Q1–Q2.
 // HTMLMediaElement.volume is capped at 1; an audio GainNode allows 2× gain.
 let misi3AudioBoostContext = null;
 function boostMisi3Audio(audio, src) {
-  if (!/\bcp3-[12]\.m4a(?:\?|$)/.test(src)) return;
+  if (!/\b(?:cp1-1|cp3-[12])\.m4a(?:\?|$)/.test(src)) return;
   const AudioContextType = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextType) return;
   try {
@@ -1213,7 +1213,7 @@ function boostMisi3Audio(audio, src) {
     // Resume from the user's direct DENGAR button gesture on Safari.
     if (context.state === "suspended") context.resume().catch(() => {});
   } catch (error) {
-    console.warn("[PeTara] Tidak dapat meningkatkan audio Misi 3", error);
+    console.warn("[PeTara] Tidak dapat meningkatkan audio soalan terpilih", error);
     // Leave the normal HTML audio path for browsers lacking Web Audio.
   }
 }
