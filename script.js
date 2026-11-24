@@ -795,7 +795,7 @@ const CP = {
     },
 
     {
-      audio: "assets/audio/cp1-2.m4a",
+      audio: "assets/audio/cp1-2.m4a?v=20261124-original-return1",
       options: ["✏️", "📏", "✂️"],
       correct: "✏️"
     }
@@ -803,7 +803,7 @@ const CP = {
 
   2: [
     {
-      audio: "assets/audio/cp2-1.m4a",
+      audio: "assets/audio/cp2-1.m4a?v=20261124-original-return1",
 
       items: [
         ["🔪", "pisau"],
@@ -816,7 +816,7 @@ const CP = {
     },
 
     {
-      audio: "assets/audio/cp2-2.m4a",
+      audio: "assets/audio/cp2-2.m4a?v=20261124-original-return1",
 
       items: [
         ["🧂", "garam"],
@@ -836,31 +836,31 @@ const CP = {
     },
 
     {
-      audio: "assets/audio/cp3-2.m4a",
+      audio: "assets/audio/cp3-2.m4a?v=20261124-original-return1",
       requiredGroups: [["beg"], ["warna", "berwarna"], ["biru"]]
     }
   ],
 
   4: [
     {
-      audio: "assets/audio/cp4-1.m4a",
+      audio: "assets/audio/cp4-1.m4a?v=20261124-original-return1",
       responseAction: ["bantu", "membantu", "tolong", "menolong"]
     },
 
     {
-      audio: "assets/audio/cp4-2.m4a",
+      audio: "assets/audio/cp4-2.m4a?v=20261124-original-return1",
       responseAction: ["beli", "membeli", "belikan", "membelikan", "membelinya", "membelikannya"]
     },
 
     {
-      audio: "assets/audio/cp4-3.m4a",
+      audio: "assets/audio/cp4-3.m4a?v=20261124-original-return1",
       all: ["telur", "kicap", "garam"]
     }
   ],
 
   5: [
     {
-      audio: "assets/audio/cp5-1.m4a",
+      audio: "assets/audio/cp5-1.m4a?v=20261124-original-return1",
 
       all: [
         "saya",
@@ -871,7 +871,7 @@ const CP = {
     },
 
     {
-      audio: "assets/audio/cp5-2.m4a",
+      audio: "assets/audio/cp5-2.m4a?v=20261124-original-return1",
 
       all: [
         "kami",
