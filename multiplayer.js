@@ -9,7 +9,7 @@ let ownRef=null, unsubscribe=[], lastUpdate=0, lastPosition=null, joined=false;
 let ownUid=null, latestPlayers={}, refreshTimer=null, pendingLeave=null, sessionInfo=null;
 let lastMapDraw=0, lastPositionSend=0;
 const MAX_PLAYERS=100;
-const AVATAR_VISIBILITY_RADIUS=250;
+const AVATAR_VISIBILITY_RADIUS=400;
 const MAX_VISIBLE_REMOTE_AVATARS=24;
 const PRESENCE_TIMEOUT_MS=35000;
 const POSITION_UPDATE_MS=1000;
